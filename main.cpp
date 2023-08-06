@@ -11,7 +11,7 @@ int main(int argc, char **argv) {
     rv32i_default_formats,
     instruction_set<lui, add, csrrw, csrrs>
   > m;
-  m.program = {0x8765'4000 | 0b0110111};
+  m.program = {0x8765'4000 | 0b0110111 | 6 << 7};
   m.step();
   return 0;
 }
