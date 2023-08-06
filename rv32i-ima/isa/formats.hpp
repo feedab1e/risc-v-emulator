@@ -72,6 +72,10 @@ struct u {
     uint32_t get_immediate(){
         return 0 | imm << 12;
     }
+    template <class I>
+    void dispatch(auto & machine){
+        std::bit_cast<I>(*this).invoke(machine);
+    }
 };
 struct b{
     uint32_t opcode: 7;       // [6 : 0]
