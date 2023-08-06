@@ -113,7 +113,58 @@ struct XOR : format::r {
   }
 };
 
-
+struct SLL : format::r {
+  static constexpr uint32_t opcode = 0b0010'011;
+  static constexpr uint32_t func3  = 0b100;
+  static constexpr uint32_t func7  = 0b0000'000;
+  void invoke(auto& machine){
+    machine.registers[r::rd] = (machine.registers[r::rs1] << (machine.registers[r::rs2] & 0x1F));
+#ifdef DEBUG
+    std::cout<<"reg["<< u::rd << "]: " << std::hex << (machine.registers[r::rs1]& 0x1F)
+              << " << " << machine.registers[r::rs2]
+              << std::dec << std::endl;
+#endif
+  }
+};
+struct SRL : format::r {
+  static constexpr uint32_t opcode = 0b0010'011;
+  static constexpr uint32_t func3  = 0b101;
+  static constexpr uint32_t func7  = 0b0000'000;
+  void invoke(auto& machine){
+    machine.registers[r::rd] = (machine.registers[r::rs1] >>(machine.registers[r::rs2] & 0x1F));
+#ifdef DEBUG
+    std::cout<<"reg["<< u::rd << "]: " << std::hex << (machine.registers[r::rs2] & 0x1F)
+              << " >> " << machine.registers[r::rs2]
+              << std::dec << std::endl;
+#endif
+  }
+};
+struct SRA : format::r {
+  static constexpr uint32_t opcode = 0b0010'011;
+  static constexpr uint32_t func3  = 0b101;
+  static constexpr uint32_t func7  = 0b0100'000;
+  void invoke(auto& machine){
+    machine.registers[r::rd] = ((int32_t)machine.registers[r::rs1] >>(machine.registers[r::rs2] & 0x1F));
+#ifdef DEBUG
+    std::cout<<"reg["<< u::rd << "]: " << std::hex << (machine.registers[r::rs2] & 0x1F)
+              << " >> " << machine.registers[r::rs2]
+              << std::dec << std::endl;
+#endif
+  }
+};
+struct SUB : format::r {
+  static constexpr uint32_t opcode = 0b0010'011;
+  static constexpr uint32_t func3  = 0b000;
+  static constexpr uint32_t func7  = 0b0100'000;
+  void invoke(auto& machine){
+    machine.registers[r::rd] = (machine.registers[r::rs1] - (machine.registers[r::rs2] & 0x1F));
+#ifdef DEBUG
+    std::cout<<"reg["<< u::rd << "]: " << std::hex << (machine.registers[r::rs2] & 0x1F)
+              << " - " << machine.registers[r::rs2]
+              << std::dec << std::endl;
+#endif
+  }
+};
 struct csrrw: format::i{
   static constexpr uint32_t opcode = 58;
   static constexpr uint32_t func3 = 2;
