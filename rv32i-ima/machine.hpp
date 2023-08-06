@@ -5,7 +5,7 @@
 #include <type_traits>
 #include <vector>
 #include <array>
-#include "../types.hpp"
+#include "types.hpp"
 
 namespace rv32i{
 namespace detail{

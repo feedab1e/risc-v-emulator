@@ -95,7 +95,7 @@ struct j {
     }
 };
 
-using rv32i_default_fmts = instruction_formats<i, j, b, r, s, u>;
+using rv32i_default_formats = instruction_formats<i, j, b, r, s, u>;
 
 }
 static_assert(sizeof(format::r) == 4);
