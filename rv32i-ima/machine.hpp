@@ -85,7 +85,7 @@ struct machine<
 >{
   std::vector<uint32_t> program;
   std::array<int32_t, 32> registers;
-  uint32_t ip = 0;
+  uint32_t pc = 0;
   void illegal_instruction(){
     throw std::runtime_error("пашол нахуй");
   }
@@ -93,7 +93,7 @@ struct machine<
     detail::dispatch<
       instruction_formats<formats...>,
       instruction_set<instrs...>
-    >{}(program.at(ip), *this);
+    >{}(program.at(pc), *this);
   }
 };
 
