@@ -32,6 +32,10 @@ struct r {
     uint32_t rs1: 5;
     uint32_t rs2: 5;
     uint32_t func7: 7;
+    uint32_t get_immediate(){
+        auto tmp = std::bit_cast<detail::bitfield<uint32_t>>(*this);
+        return tmp[7, 11] | tmp[25, 30] << 5 | tmp.fillbit(31, 21);
+    }
 };
 struct i {
     uint32_t opcode: 7;         // [6 : 0]

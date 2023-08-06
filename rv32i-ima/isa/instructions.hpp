@@ -10,10 +10,33 @@ struct lui: format::u {
   void invoke(auto &machine){
     //machine
     machine.registers[u::rd] = u::get_immediate();
+
+#ifdef DEBUG
     std::cout<<"reg["<< u::rd << "]: " << std::hex << machine.registers[u::rd]
         << std::dec << std::endl;
+#endif
   }
 };
+struct auipc: format::u {
+  static constexpr uint32_t opcode = 0b0010111;
+  void invoke(auto &machine){
+
+    machine.registers[u::rd] = (machine.pc + u::get_immediate());
+#ifdef DEBUG
+    std::cout<<"reg["<< u::rd << "]: " << std::hex << machine.registers[u::rd]
+              << std::dec << std::endl;
+#endif
+  }
+};
+
+struct add : format::r {
+  static constexpr uint32_t opcode = 46;
+  static constexpr uint32_t func3 = 0;
+  void invoke(auto&){
+    std::cout << "add\n";
+  }
+};
+
 
 struct csrrw: format::i{
   static constexpr uint32_t opcode = 58;
@@ -29,12 +52,6 @@ struct csrrs: format::i {
     std::cout << "csrrs\n" << this->imm << "\n";
   }
 };
-struct add : format::i {
-  static constexpr uint32_t opcode = 46;
-  static constexpr uint32_t func3 = 0;
-  void invoke(auto&){
-    std::cout << "add\n";
-  }
-};
+
 
 }
