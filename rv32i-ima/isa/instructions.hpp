@@ -30,7 +30,7 @@ struct AUIPC: format::u {
 };
 
 struct ADD : format::r {
-  static constexpr uint32_t opcode = 0b0010'011;
+  static constexpr uint32_t opcode = 0b0110'011;
   static constexpr uint32_t func3  = 0b000;
   static constexpr uint32_t func7  = 0b0000'000;
   void invoke(auto& machine){
@@ -44,7 +44,7 @@ struct ADD : format::r {
 };
 
 struct SLT : format::r {
-  static constexpr uint32_t opcode = 0b0010'011;
+  static constexpr uint32_t opcode = 0b0110'011;
   static constexpr uint32_t func3  = 0b010;
   static constexpr uint32_t func7  = 0b0000'000;
   void invoke(auto& machine){
@@ -58,7 +58,7 @@ struct SLT : format::r {
 };
 
 struct SLTU : format::r {
-  static constexpr uint32_t opcode = 0b0010'011;
+  static constexpr uint32_t opcode = 0b0110'011;
   static constexpr uint32_t func3  = 0b011;
   static constexpr uint32_t func7  = 0b0000'000;
   void invoke(auto& machine){
