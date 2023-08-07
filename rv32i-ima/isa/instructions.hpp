@@ -204,7 +204,7 @@ struct JAL : format::j {
 };
 struct JALR : format::i {
   static constexpr auto opcode = 0b1100111;
-  static constexpr auto funct3 = 0;
+  static constexpr auto func3 = 0;
   void invoke(auto& machine){
     machine.registers[rd] = machine.pc + 4;
     machine.pc = (machine.registers[rd] + get_immediate()) & (-1 << 1);
@@ -212,7 +212,7 @@ struct JALR : format::i {
 };
 struct BEQ : format::b {
   static constexpr auto opcode = 0b1100011;
-  static constexpr auto funct3 = 0b000;
+  static constexpr auto func3 = 0b000;
   void invoke(auto& machine){
     if(machine.registers[rs1] == machine.registers[rs2])
       machine.pc += get_immediate();
@@ -220,7 +220,7 @@ struct BEQ : format::b {
 };
 struct BNE : format::b {
   static constexpr auto opcode = 0b1100011;
-  static constexpr auto funct3 = 0b001;
+  static constexpr auto func3 = 0b001;
   void invoke(auto& machine){
     if(machine.registers[rs1] != machine.registers[rs2])
       machine.pc += get_immediate();
@@ -228,25 +228,25 @@ struct BNE : format::b {
 };
 struct BLT : format::b {
   static constexpr auto opcode = 0b1100011;
-  static constexpr auto funct3 = 0b100;
+  static constexpr auto func3 = 0b100;
   void invoke(auto& machine){
-    using s = std::make_signed_t<decltype(machine.registers[0])>;
+    using s = std::make_signed_t<typename decltype(machine.registers)::value_type>;
     if((s)machine.registers[rs1] < (s)machine.registers[rs2])
       machine.pc += get_immediate();
   }
 };
 struct BGE : format::b {
   static constexpr auto opcode = 0b1100011;
-  static constexpr auto funct3 = 0b101;
+  static constexpr auto func3 = 0b101;
   void invoke(auto& machine){
-    using s = std::make_signed_t<decltype(machine.registers[0])>;
+    using s = std::make_signed_t<typename decltype(machine.registers)::value_type>;
     if((s)machine.registers[rs1] >= (s)machine.registers[rs2])
       machine.pc += get_immediate();
   }
 };
 struct BLTU : format::b {
   static constexpr auto opcode = 0b1100011;
-  static constexpr auto funct3 = 0b110;
+  static constexpr auto func3 = 0b110;
   void invoke(auto& machine){
     if(machine.registers[rs1] < machine.registers[rs2])
       machine.pc += get_immediate();
@@ -254,7 +254,7 @@ struct BLTU : format::b {
 };
 struct BGEU : format::b {
   static constexpr auto opcode = 0b1100011;
-  static constexpr auto funct3 = 0b111;
+  static constexpr auto func3 = 0b111;
   void invoke(auto& machine){
     if(machine.registers[rs1] >= machine.registers[rs2])
       machine.pc += get_immediate();
