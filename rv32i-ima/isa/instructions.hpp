@@ -72,7 +72,7 @@ struct SLTU : format::r {
 };
 
 struct AND: format::r {
-  static constexpr uint32_t opcode = 0b0010'011;
+  static constexpr uint32_t opcode = 0b0110'011;
   static constexpr uint32_t func3  = 0b111;
   static constexpr uint32_t func7  = 0b0000'000;
   void invoke(auto& machine){
@@ -86,7 +86,7 @@ struct AND: format::r {
 };
 
 struct OR : format::r {
-  static constexpr uint32_t opcode = 0b0010'011;
+  static constexpr uint32_t opcode = 0b0110'011;
   static constexpr uint32_t func3  = 0b110;
   static constexpr uint32_t func7  = 0b0000'000;
   void invoke(auto& machine){
@@ -100,7 +100,7 @@ struct OR : format::r {
 };
 
 struct XOR : format::r {
-  static constexpr uint32_t opcode = 0b0010'011;
+  static constexpr uint32_t opcode = 0b0110'011;
   static constexpr uint32_t func3  = 0b100;
   static constexpr uint32_t func7  = 0b0000'000;
   void invoke(auto& machine){
@@ -114,7 +114,7 @@ struct XOR : format::r {
 };
 
 struct SLL : format::r {
-  static constexpr uint32_t opcode = 0b0010'011;
+  static constexpr uint32_t opcode = 0b0110'011;
   static constexpr uint32_t func3  = 0b100;
   static constexpr uint32_t func7  = 0b0000'000;
   void invoke(auto& machine){
@@ -127,7 +127,7 @@ struct SLL : format::r {
   }
 };
 struct SRL : format::r {
-  static constexpr uint32_t opcode = 0b0010'011;
+  static constexpr uint32_t opcode = 0b0110'011;
   static constexpr uint32_t func3  = 0b101;
   static constexpr uint32_t func7  = 0b0000'000;
   void invoke(auto& machine){
@@ -140,7 +140,7 @@ struct SRL : format::r {
   }
 };
 struct SRA : format::r {
-  static constexpr uint32_t opcode = 0b0010'011;
+  static constexpr uint32_t opcode = 0b0110'011;
   static constexpr uint32_t func3  = 0b101;
   static constexpr uint32_t func7  = 0b0100'000;
   void invoke(auto& machine){
@@ -153,7 +153,7 @@ struct SRA : format::r {
   }
 };
 struct SUB : format::r {
-  static constexpr uint32_t opcode = 0b0010'011;
+  static constexpr uint32_t opcode = 0b0110'011;
   static constexpr uint32_t func3  = 0b000;
   static constexpr uint32_t func7  = 0b0100'000;
   void invoke(auto& machine){
