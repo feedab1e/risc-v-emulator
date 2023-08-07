@@ -1,9 +1,16 @@
 #pragma once
 
-#include <iostream>
 #include "formats.hpp"
+#include <iostream>
+#include <sstream>
 
 namespace rv32i::instructions{
+
+constexpr std::string reginfo (auto& machine, uint32_t reg){
+  std::stringstream ss;
+  ss << "R" << reg << std::hex << " 0x" << machine.registers[reg] << std::dec << " ";
+  return ss.str();
+}
 
 struct LUI: format::u {
   static constexpr uint32_t opcode = 0b0110111;
@@ -12,8 +19,7 @@ struct LUI: format::u {
     machine.registers[u::rd] = u::get_immediate();
 
 #ifdef DEBUG
-    std::cout<<"reg["<< u::rd << "]: " << std::hex << machine.registers[u::rd]
-        << std::dec << std::endl;
+    std::cout<<"[LUI] " << reginfo(machine, u::rd) << std::endl;
 #endif
   }
 };
@@ -23,8 +29,7 @@ struct AUIPC: format::u {
 
     machine.registers[u::rd] = (machine.pc + u::get_immediate());
 #ifdef DEBUG
-    std::cout<<"reg["<< u::rd << "]: " << std::hex << machine.registers[u::rd]
-              << std::dec << std::endl;
+    std::cout<<"[AUIPC] " << reginfo(machine, u::rd) << std::endl;
 #endif
   }
 };
@@ -36,12 +41,26 @@ struct ADD : format::r {
   void invoke(auto& machine){
     machine.registers[r::rd] = (machine.registers[r::rs1] + machine.registers[r::rs2]);
 #ifdef DEBUG
-    std::cout<<"reg["<< r::rd << "]: " << std::hex << machine.registers[r::rs1]
-              << " + " << machine.registers[r::rs2]
-              << std::dec << std::endl;
+    std::cout << "[ADD] " << reginfo(machine, r::rd) << " = " << reginfo(machine, r::rs1) << " + "
+              << reginfo(machine, r::rs2)
+              << std::endl;
 #endif
   }
 };
+
+struct ADDI: format::i{
+  static constexpr uint32_t opcode = 0b0010011;
+  static constexpr uint32_t func3 =  0b000;
+  void invoke(auto& machine){
+    machine.registers[i::rd] = (machine.registers[i::rs1] + i::get_immediate());
+#ifdef DEBUG
+    std::cout << "[ADDI] " << reginfo(machine, i::rd) << " = " << reginfo(machine, i::rs1) << " + "
+              << i::get_immediate()
+              << std::endl;
+#endif
+  }
+};
+
 
 struct SLT : format::r {
   static constexpr uint32_t opcode = 0b0110'011;
@@ -50,9 +69,9 @@ struct SLT : format::r {
   void invoke(auto& machine){
     machine.registers[r::rd] = ((int32_t)machine.registers[r::rs1] < (int32_t)machine.registers[r::rs2]);
 #ifdef DEBUG
-    std::cout<<"reg["<< r::rd << "]: " << std::hex << machine.registers[r::rs1]
-              << " < " << machine.registers[r::rs2]
-              << std::dec << std::endl;
+    std::cout<<"[SLT] " << reginfo(machine, r::rd) << " = "
+        << reginfo(machine, r::rs1) << " < " << reginfo(machine, r::rs2)
+        << std::endl;
 #endif
   }
 };
@@ -63,9 +82,10 @@ struct SLTI: format::i{
   void invoke(auto& machine){
     machine.registers[i::rd] = ((int32_t)machine.registers[i::rs1] < (int32_t)i::get_immediate());
 #ifdef DEBUG
-    std::cout<<"reg["<< i::rd << "]: " << std::hex << machine.registers[i::rs1]
-              << " < " << i::get_immediate()
-              << std::dec << std::endl;
+    std::cout<<"[SLTI] " <<reginfo(machine, i::rd) << " = "
+              << reginfo(machine, i::rs1) << " < "
+              << i::get_immediate()
+              << std::endl;
 #endif
   }
 };
@@ -77,9 +97,9 @@ struct SLTU : format::r {
   void invoke(auto& machine){
     machine.registers[r::rd] = (machine.registers[r::rs1] < machine.registers[r::rs2]);
 #ifdef DEBUG
-    std::cout<<"reg["<< r::rd << "]: " << std::hex << machine.registers[r::rs1]
-              << " < " << machine.registers[r::rs2]
-              << std::dec << std::endl;
+    std::cout<<"[SLTU] " << reginfo(machine, r::rd) << " = "
+              << reginfo(machine, r::rs1) << " < " << reginfo(machine, r::rs2)
+              << std::endl;
 #endif
   }
 };
@@ -89,9 +109,10 @@ struct SLTIU: format::i{
   void invoke(auto& machine){
     machine.registers[i::rd] = (machine.registers[i::rs1] < i::get_immediate());
 #ifdef DEBUG
-    std::cout<<"reg["<< i::rd << "]: " << std::hex << machine.registers[i::rs1]
-              << " < " << i::get_immediate()
-              << std::dec << std::endl;
+    std::cout<<"[SLTIU] " <<reginfo(machine, i::rd) << " = "
+              << reginfo(machine, i::rs1) << " < "
+              << i::get_immediate()
+              << std::endl;
 #endif
   }
 };
@@ -103,9 +124,9 @@ struct AND: format::r {
   void invoke(auto& machine){
     machine.registers[r::rd] = (machine.registers[r::rs1] & machine.registers[r::rs2]);
 #ifdef DEBUG
-    std::cout<<"reg["<< r::rd << "]: " << std::hex << machine.registers[r::rs1]
-              << " & " << machine.registers[r::rs2]
-              << std::dec << std::endl;
+    std::cout << "[AND] " << reginfo(machine, r::rd) << " = "
+              << reginfo(machine, r::rs1) << " & "
+              << reginfo(machine, r::rs2) << std::endl;
 #endif
   }
 };
@@ -115,21 +136,9 @@ struct ANDI: format::i{
   void invoke(auto& machine){
     machine.registers[i::rd] = (machine.registers[i::rs1] & i::get_immediate());
 #ifdef DEBUG
-    std::cout<<"reg["<< i::rd << "]: " << std::hex << machine.registers[i::rs1]
-              << " & " << i::get_immediate()
-              << std::dec << std::endl;
-#endif
-  }
-};
-struct ADDI: format::i{
-  static constexpr uint32_t opcode = 0b0010011;
-  static constexpr uint32_t func3 =  0b000;
-  void invoke(auto& machine){
-    machine.registers[i::rd] = (machine.registers[i::rs1] + i::get_immediate());
-#ifdef DEBUG
-    std::cout<<"reg["<< i::rd << "]: " << std::hex << machine.registers[i::rs1]
-              << " + " << i::get_immediate()
-              << std::dec << std::endl;
+    std::cout << "[ANDI] " << reginfo(machine, i::rd) << " = "
+              << reginfo(machine, i::rs1) << " & "
+              << i::get_immediate() << std::endl;
 #endif
   }
 };
@@ -141,9 +150,9 @@ struct OR : format::r {
   void invoke(auto& machine){
     machine.registers[r::rd] = (machine.registers[r::rs1] | machine.registers[r::rs2]);
 #ifdef DEBUG
-    std::cout<<"reg["<< r::rd << "]: " << std::hex << machine.registers[r::rs1]
-              << " | " << machine.registers[r::rs2]
-              << std::dec << std::endl;
+    std::cout << "[OR] " << reginfo(machine, r::rd) << " = "
+              << reginfo(machine, r::rs1) << " | "
+              << reginfo(machine, r::rs2) << std::endl;
 #endif
   }
 };
@@ -153,9 +162,9 @@ struct ORI: format::i{
   void invoke(auto& machine){
     machine.registers[i::rd] = (machine.registers[i::rs1] < i::get_immediate());
 #ifdef DEBUG
-    std::cout<<"reg["<< i::rd << "]: " << std::hex << machine.registers[i::rs1]
-              << " | " << i::get_immediate()
-              << std::dec << std::endl;
+    std::cout << "[ORI] " << reginfo(machine, i::rd) << " = "
+              << reginfo(machine, i::rs1) << " | "
+              << i::get_immediate() << std::endl;
 #endif
   }
 };
@@ -167,9 +176,9 @@ struct XOR : format::r {
   void invoke(auto& machine){
     machine.registers[r::rd] = (machine.registers[r::rs1] ^ machine.registers[r::rs2]);
 #ifdef DEBUG
-    std::cout<<"reg["<< r::rd << "]: " << std::hex << machine.registers[r::rs1]
-              << " ^ " << machine.registers[r::rs2]
-              << std::dec << std::endl;
+    std::cout << "[XOR] " << reginfo(machine, r::rd) << " = "
+              << reginfo(machine, r::rs1) << " ^ "
+              << reginfo(machine, r::rs2) << std::endl;
 #endif
   }
 };
@@ -179,9 +188,9 @@ struct XORI: format::i{
   void invoke(auto& machine){
     machine.registers[i::rd] = (machine.registers[i::rs1] ^ i::get_immediate());
 #ifdef DEBUG
-    std::cout<<"reg["<< i::rd << "]: " << std::hex << machine.registers[i::rs1]
-              << " ^ " << i::get_immediate()
-              << std::dec << std::endl;
+    std::cout << "[XORI] " << reginfo(machine, i::rd) << " = "
+              << reginfo(machine, i::rs1) << " ^ "
+              << i::get_immediate() << std::endl;
 #endif
   }
 };
@@ -194,9 +203,9 @@ struct SLL : format::r {
   void invoke(auto& machine){
     machine.registers[r::rd] = (machine.registers[r::rs1] << (machine.registers[r::rs2] & 0x1F));
 #ifdef DEBUG
-    std::cout<<"reg["<< r::rd << "]: " << std::hex << (machine.registers[r::rs1]& 0x1F)
-              << " << " << machine.registers[r::rs2]
-              << std::dec << std::endl;
+    std::cout << "[SLL] " << reginfo(machine, r::rd) << " = "
+              << reginfo(machine, r::rs1) << " << "
+              << reginfo(machine, r::rs2) << std::endl;
 #endif
   }
 };
@@ -206,6 +215,9 @@ struct SLLI: format::i{
   void invoke(auto& machine){
     machine.registers[i::rd] = (machine.registers[i::rs1] << (i::get_immediate() & 0x1F));
 #ifdef DEBUG
+    std::cout << "[SLLI] " << reginfo(machine, i::rd) << " = "
+              << reginfo(machine, i::rs1) << " << "
+              << i::get_immediate() << std::endl;
 #endif
   }
 };
@@ -216,9 +228,9 @@ struct SRL : format::r {
   void invoke(auto& machine){
     machine.registers[r::rd] = (machine.registers[r::rs1] >>(machine.registers[r::rs2] & 0x1F));
 #ifdef DEBUG
-    std::cout<<"reg["<< r::rd << "]: " << std::hex << (machine.registers[r::rs2] & 0x1F)
-              << " >> " << machine.registers[r::rs2]
-              << std::dec << std::endl;
+    std::cout << "[SRL] " << reginfo(machine, r::rd) << " = "
+              << reginfo(machine, r::rs1) << " >> "
+              << reginfo(machine, r::rs2) << std::endl;
 #endif
   }
 };
@@ -229,9 +241,9 @@ struct SRA : format::r {
   void invoke(auto& machine){
     machine.registers[r::rd] = ((int32_t)machine.registers[r::rs1] >>(machine.registers[r::rs2] & 0x1F));
 #ifdef DEBUG
-    std::cout<<"reg["<< r::rd << "]: " << std::hex << (machine.registers[r::rs2] & 0x1F)
-              << " >> " << machine.registers[r::rs2]
-              << std::dec << std::endl;
+    std::cout << "[SRL] " << reginfo(machine, r::rd) << " = "
+              << reginfo(machine, r::rs1) << " >> "
+              << reginfo(machine, r::rs2) << std::endl;
 #endif
   }
 };
@@ -242,13 +254,21 @@ struct SRLI_SRAI: format::i{
   void invoke(auto& machine){
     if((i::get_immediate()&0xFE0) == 0x000){
       machine.registers[i::rd] = (machine.registers[i::rs1] >>(i::get_immediate() & 0x1F));
+#ifdef DEBUG
+      std::cout << "[SRLI] " << reginfo(machine, i::rd) << " = "
+                << reginfo(machine, i::rs1) << " << "
+                << i::get_immediate() << std::endl;
+#endif
     }else if((i::get_immediate()&0xFE0) == 0x400){
       machine.registers[i::rd] = ((int32_t)machine.registers[i::rs1] >>(i::get_immediate() & 0x1F));
+#ifdef DEBUG
+      std::cout << "[SRAI] " << reginfo(machine, i::rd) << " = "
+                << reginfo(machine, i::rs1) << " << "
+                << i::get_immediate() << std::endl;
+#endif
     }else{
       machine.illegal_instruction();
     }
-#ifdef DEBUG
-#endif
   }
 };
 
@@ -259,9 +279,9 @@ struct SUB : format::r {
   void invoke(auto& machine){
     machine.registers[r::rd] = (machine.registers[r::rs1] - (machine.registers[r::rs2] & 0x1F));
 #ifdef DEBUG
-    std::cout<<"reg["<< r::rd << "]: " << std::hex << machine.registers[r::rs2]
-              << " - " << machine.registers[r::rs2]
-              << std::dec << std::endl;
+    std::cout << "[SUB] " << reginfo(machine, r::rd) << " = "
+              << reginfo(machine, r::rs1) << " >> "
+              << reginfo(machine, r::rs2) << std::endl;
 #endif
   }
 };
@@ -269,43 +289,85 @@ struct SUB : format::r {
 struct CSRRW: format::i{
   static constexpr uint32_t opcode = 0b111'0011;
   static constexpr uint32_t func3 =  0b001;
-  void invoke(auto&){
-    std::cout << "csrrw\n";
+  void invoke(auto& machine){
+    machine.registers[i::rd] = machine.csr[i::imm];
+    machine.csr[i::imm] = machine.registers[i::rs1];
+#ifdef DEBUG
+    std::cout << "[CSRRW] "
+              << "old: " << reginfo(machine, i::rd)
+              << "new: " << reginfo(machine, i::rs1)
+              << std::endl;
+#endif
   }
 };
 struct CSRRS: format::i {
   static constexpr uint32_t opcode = 0b111'0011;
   static constexpr uint32_t func3 =  0b010;
-  void invoke(auto&){
-    std::cout << "csrrs\n" << this->imm << "\n";
+  void invoke(auto& machine){
+    machine.registers[i::rd] = machine.csr[i::imm];
+    machine.csr[i::imm] |= machine.registers[i::rs1];
+#ifdef DEBUG
+    std::cout << "[CSRRS] "
+              << "old: " << reginfo(machine, i::rd)
+              << "new: " << reginfo(machine, i::rs1)
+              << std::endl;
+#endif
   }
 };
 struct CSRRC: format::i {
   static constexpr uint32_t opcode = 0b111'0011;
   static constexpr uint32_t func3 =  0b011;
-  void invoke(auto&){
-    std::cout << "csrrs\n" << this->imm << "\n";
+  void invoke(auto& machine){
+    machine.registers[i::rd] = machine.csr[i::imm];
+    machine.csr[i::imm] &= ~machine.registers[i::rs1];
+#ifdef DEBUG
+    std::cout << "[CSRRC] "
+              << "old: " << reginfo(machine, i::rd)
+              << "new: " << reginfo(machine, i::rs1)
+              << std::endl;
+#endif
   }
 };
 struct CSRRWI: format::i {
   static constexpr uint32_t opcode = 0b111'0011;
   static constexpr uint32_t func3 =  0b101;
-  void invoke(auto&){
-    std::cout << "csrrs\n" << this->imm << "\n";
+  void invoke(auto& machine){
+    machine.registers[i::rd] = machine.csr[i::imm];
+    machine.csr[i::imm] = i::rs1;
+#ifdef DEBUG
+    std::cout << "[CSRRWI] "
+              << "old: " << reginfo(machine, i::rd)
+              << "new: " << std::hex << i::rs1 << std::dec
+              << std::endl;
+#endif
   }
 };
 struct CSRRSI: format::i {
   static constexpr uint32_t opcode = 0b111'0011;
   static constexpr uint32_t func3 =  0b110;
-  void invoke(auto&){
-    std::cout << "csrrs\n" << this->imm << "\n";
+  void invoke(auto& machine){
+    machine.registers[i::rd] = machine.csr[i::imm];
+    machine.csr[i::imm] |= i::rs1;
+#ifdef DEBUG
+    std::cout << "[CSRRSI] "
+              << "old: " << reginfo(machine, i::rd)
+              << "new: " << std::hex << i::rs1 << std::dec
+              << std::endl;
+#endif
   }
 };
 struct CSRRCI: format::i {
   static constexpr uint32_t opcode = 0b111'0011;
   static constexpr uint32_t func3 =  0b111;
-  void invoke(auto&){
-    std::cout << "csrrs\n" << this->imm << "\n";
+  void invoke(auto& machine){
+    machine.registers[i::rd] = machine.csr[i::imm];
+    machine.csr[i::imm] &= ~i::rs1;
+#ifdef DEBUG
+    std::cout << "[CSRRCI] "
+              << "old: " << reginfo(machine, i::rd)
+              << "new: " << std::hex << i::rs1 << std::dec
+              << std::endl;
+#endif
   }
 };
 
@@ -316,7 +378,9 @@ struct JAL : format::j {
     machine.registers[rd] = machine.pc + 4;
     machine.pc += get_immediate();
 #ifdef DEBUG
-    printf("[JAL] jump to addr: 0x%X", machine.pc);
+    std::cout << "[JAL] " << reginfo(machine, j::rd)
+              << "PC: " << std::hex << machine.pc << std::dec
+              << std::endl;
 #endif
   }
 };
@@ -328,7 +392,9 @@ struct JALR : format::i {
     machine.registers[rd] = machine.pc + 4;
     machine.pc = (machine.registers[rd] + get_immediate()) & (-1 << 1);
 #ifdef DEBUG
-    printf("[JALR] jump to addr: 0x%X\n", machine.pc);
+    std::cout << "[JALR ]" << reginfo(machine, i::rd)
+              << "PC: " << std::hex << machine.pc << std::dec
+              << std::endl;
 #endif
   }
 };
@@ -338,6 +404,12 @@ struct BEQ : format::b {
   void invoke(auto& machine){
     if(machine.registers[rs1] == machine.registers[rs2])
       machine.pc += get_immediate();
+#ifdef DEBUG
+    std::cout << "[BEQ ]" << reginfo(machine, b::rs1)
+              << " == " << reginfo(machine, b::rs2)
+              << "PC: " << std::hex << machine.pc << std::dec
+              << std::endl;
+#endif
   }
 };
 struct BNE : format::b {
@@ -346,6 +418,12 @@ struct BNE : format::b {
   void invoke(auto& machine){
     if(machine.registers[rs1] != machine.registers[rs2])
       machine.pc += get_immediate();
+#ifdef DEBUG
+    std::cout << "[BNE ]" << reginfo(machine, b::rs1)
+              << " != " << reginfo(machine, b::rs2)
+              << "PC: " << std::hex << machine.pc << std::dec
+              << std::endl;
+#endif
   }
 };
 struct BLT : format::b {
@@ -355,6 +433,12 @@ struct BLT : format::b {
     using s = std::make_signed_t<typename decltype(machine.registers)::value_type>;
     if((s)machine.registers[rs1] < (s)machine.registers[rs2])
       machine.pc += get_immediate();
+#ifdef DEBUG
+    std::cout << "[BLT ]" << reginfo(machine, b::rs1)
+              << " != " << reginfo(machine, b::rs2)
+              << "PC: " << std::hex << machine.pc << std::dec
+              << std::endl;
+#endif
   }
 };
 struct BGE : format::b {
@@ -364,6 +448,12 @@ struct BGE : format::b {
     using s = std::make_signed_t<typename decltype(machine.registers)::value_type>;
     if((s)machine.registers[rs1] >= (s)machine.registers[rs2])
       machine.pc += get_immediate();
+#ifdef DEBUG
+    std::cout << "[BGE ]" << reginfo(machine, b::rs1)
+              << " != " << reginfo(machine, b::rs2)
+              << "PC: " << std::hex << machine.pc << std::dec
+              << std::endl;
+#endif
   }
 };
 struct BLTU : format::b {
@@ -372,6 +462,12 @@ struct BLTU : format::b {
   void invoke(auto& machine){
     if(machine.registers[rs1] < machine.registers[rs2])
       machine.pc += get_immediate();
+#ifdef DEBUG
+    std::cout << "[BLTU ]" << reginfo(machine, b::rs1)
+              << " != " << reginfo(machine, b::rs2)
+              << "PC: " << std::hex << machine.pc << std::dec
+              << std::endl;
+#endif
   }
 };
 struct BGEU : format::b {
@@ -380,6 +476,12 @@ struct BGEU : format::b {
   void invoke(auto& machine){
     if(machine.registers[rs1] >= machine.registers[rs2])
       machine.pc += get_immediate();
+#ifdef DEBUG
+    std::cout << "[BGEU ]" << reginfo(machine, b::rs1)
+              << " != " << reginfo(machine, b::rs2)
+              << "PC: " << std::hex << machine.pc << std::dec
+              << std::endl;
+#endif
   }
 };
 
@@ -389,6 +491,12 @@ struct LB : format::i {
   void invoke(auto& machine){
     auto addr = machine.registers[rs1] + get_immediate();
     machine.registers[rd] = (int32_t)machine.template load<int8_t>(addr);
+#ifdef DEBUG
+    std::cout << "[LB ]" << reginfo(machine, i::rd)
+              << " = " << reginfo(machine, i::rs1)
+              << " + " << get_immediate()
+              << std::endl;
+#endif
   }
 };
 struct LH : format::i {
@@ -397,6 +505,12 @@ struct LH : format::i {
   void invoke(auto& machine){
     auto addr = machine.registers[rs1] + get_immediate();
     machine.registers[rd] = (int32_t)machine.template load<int16_t>(addr);
+#ifdef DEBUG
+    std::cout << "[LH ]" << reginfo(machine, i::rd)
+              << " = " << reginfo(machine, i::rs1)
+              << " + " << get_immediate()
+              << std::endl;
+#endif
   }
 };
 struct LW : format::i {
@@ -405,6 +519,12 @@ struct LW : format::i {
   void invoke(auto& machine){
     auto addr = machine.registers[rs1] + get_immediate();
     machine.registers[rd] = (uint32_t)machine.template load<uint32_t>(addr);
+#ifdef DEBUG
+    std::cout << "[LW ]" << reginfo(machine, i::rd)
+              << " = " << reginfo(machine, i::rs1)
+              << " + " << get_immediate()
+              << std::endl;
+#endif
   }
 };
 struct LBU : format::i {
@@ -413,6 +533,12 @@ struct LBU : format::i {
   void invoke(auto& machine){
     auto addr = machine.registers[rs1] + get_immediate();
     machine.registers[rd] = (uint32_t)machine.template load<uint8_t>(addr);
+#ifdef DEBUG
+    std::cout << "[LBU ]" << reginfo(machine, i::rd)
+              << " = " << reginfo(machine, i::rs1)
+              << " + " << get_immediate()
+              << std::endl;
+#endif
   }
 };
 struct LHU : format::i {
@@ -421,6 +547,12 @@ struct LHU : format::i {
   void invoke(auto& machine){
     auto addr = machine.registers[rs1] + get_immediate();
     machine.registers[rd] = (uint32_t)machine.template load<uint16_t>(addr);
+#ifdef DEBUG
+    std::cout << "[LHU ]" << reginfo(machine, i::rd)
+              << " = " << reginfo(machine, i::rs1)
+              << " + " << get_immediate()
+              << std::endl;
+#endif
   }
 };
 struct SB : format::s {
@@ -429,6 +561,13 @@ struct SB : format::s {
   void invoke(auto& machine){
     auto addr = machine.registers[rs1] + get_immediate();
     machine.store(addr, (uint8_t)machine.registers[rs2]);
+#ifdef DEBUG
+    std::cout << "[SB ]"
+              << " = " << reginfo(machine, s::rs1)
+              << " + " << get_immediate()
+              << " <== " << reginfo(machine, s::rs2)
+              << std::endl;
+#endif
   }
 };
 struct SH : format::s {
@@ -437,6 +576,13 @@ struct SH : format::s {
   void invoke(auto& machine){
     auto addr = machine.registers[rs1] + get_immediate();
     machine.store(addr, (uint16_t)machine.registers[rs2]);
+#ifdef DEBUG
+    std::cout << "[SB ]"
+              << " = " << reginfo(machine, s::rs1)
+              << " + " << get_immediate()
+              << " <== " << reginfo(machine, s::rs2)
+              << std::endl;
+#endif
   }
 };
 struct SW : format::s {
@@ -445,6 +591,23 @@ struct SW : format::s {
   void invoke(auto& machine){
     auto addr = machine.registers[rs1] + get_immediate();
     machine.store(addr, (uint32_t)machine.registers[rs2]);
+#ifdef DEBUG
+    std::cout << "[SB ]"
+              << " = " << reginfo(machine, s::rs1)
+              << " + " << get_immediate()
+              << " <== " << reginfo(machine, s::rs2)
+              << std::endl;
+#endif
+  }
+};
+
+struct ECALL : format::i {
+  static constexpr auto opcode = 0b111'0011;
+  static constexpr auto func3 = 0b000;
+  void invoke(auto& machine){
+#ifdef DEBUG
+    std::cout << "[ECALL] idk" << std::endl;
+#endif
   }
 };
 

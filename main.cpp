@@ -39,9 +39,12 @@ int main(int argc, char **argv) {
   using namespace instructions;
   machine<
     rv32i_default_formats,
-    instruction_set<LUI, AUIPC, ADDI, ADD, SLT, SLTIU, SLTU, ANDI, AND, ORI, OR, XORI, XOR, SLLI, SLL, SRLI_SRAI, SRL, SRA, SUB , csrrw, csrrs, JAL, JALR, BEQ, BNE, BGE, BLT, BGEU, BLTU,
+    instruction_set<LUI, AUIPC, ADDI, ADD, SLT, SLTIU, SLTU, ANDI, AND, ORI, OR, XORI, XOR, SLLI, SLL, SRLI_SRAI, SRL, SRA, SUB, JAL, JALR, BEQ, BNE, BGE, BLT, BGEU, BLTU, SLTI,
                       LB, LH, LW, LBU, LHU,
-                      SB, SH, SW>
+                      SB, SH, SW,
+                      CSRRW, CSRRS, CSRRC,
+                      CSRRWI, CSRRSI, CSRRCI,
+                      ECALL>
 
   > m;
   //m.program = {0x8765'4000 | 0b0110111 | 6 << 7};
@@ -53,7 +56,7 @@ int main(int argc, char **argv) {
   //TODO: test and/or/xor
   //TODO: test sll, srl, sra, sub
   //TODO: test addi/nop
-  for(int i = 0; i < 100; i++){
+  for(int i = 0; i < 1024; i++){
     m.step();
   }
   return 0;

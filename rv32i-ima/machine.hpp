@@ -1,12 +1,12 @@
 #pragma once
 
+#include "types.hpp"
+#include <array>
 #include <cstdint>
 #include <exception>
+#include <iomanip>
 #include <type_traits>
 #include <vector>
-#include <array>
-#include "types.hpp"
-
 
 namespace rv32i{
 namespace detail{
@@ -86,7 +86,10 @@ struct machine<
 >{
   std::vector<uint32_t> program;
   std::array<int32_t, 32> registers = {};
+  std::array<uint32_t, 4096> csr = {0};
   uint32_t pc = 0;
+
+
   void illegal_instruction(){
     printf("error at instruction [pc:%d]: 0x%X\n", this->pc, this->program[pc]);
     throw std::runtime_error("пашол нахуй");
@@ -108,12 +111,24 @@ struct machine<
     program[addr / sizeof(memory_type)] = oldval;
   }
   void step(){
+#ifdef DEBUG
+    std::cout<< *this;
+#endif
     this->registers[0] = 0;
     detail::dispatch<
       instruction_formats<formats...>,
       instruction_set<instrs...>
     >{}(program.at(pc/4), *this);
     pc+=4;
+  }
+
+  friend std::ostream& operator<<(std::ostream& os, const auto& machine) {
+    std::cout.fill('0');
+    return os << "PC[" << std::setw(5)   << machine.pc/4
+               << " 0x" <<std::setw(8) << std::hex << machine.pc
+              << "]: 0x" << std::setw(8) << machine.program[machine.pc/4]
+              <<std::dec
+              << "\t";
   }
 };
 
