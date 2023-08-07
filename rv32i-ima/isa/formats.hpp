@@ -110,6 +110,10 @@ struct j {
         auto tmp = std::bit_cast<detail::bitfield<uint32_t>>(*this);
         return 0 | tmp[21, 24] << 1 | tmp[25, 30] << 5 | tmp[20] << 11 | tmp[12, 19] << 12 | tmp.fillbit(31, 12);
     }
+    template <class I>
+    void dispatch(auto & machine){
+        std::bit_cast<I>(*this).invoke(machine);
+    }
 };
 
 using rv32i_default_formats = instruction_formats<i, j, b, r, s, u>;
