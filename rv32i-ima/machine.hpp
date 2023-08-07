@@ -106,6 +106,7 @@ struct machine<
     program[addr / sizeof(memory_type)] = oldval;
   }
   void step(){
+    this->registers[0] = 0;
     detail::dispatch<
       instruction_formats<formats...>,
       instruction_set<instrs...>
