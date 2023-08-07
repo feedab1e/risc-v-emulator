@@ -4,6 +4,8 @@ set(CMAKE_CXX_STANDARD 23)
 
 project(rv32i-ima)
 
+add_definitions(-DDEBUG)
+
 add_executable(rv32i-ima main.cpp)
 target_compile_features(rv32i-ima PUBLIC cxx_std_23)
 

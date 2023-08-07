@@ -23,7 +23,7 @@ struct AUIPC: format::u {
 
     machine.registers[u::rd] = (machine.pc + u::get_immediate());
 #ifdef DEBUG
-    std::cout<<"reg["<< r::rd << "]: " << std::hex << machine.registers[u::rd]
+    std::cout<<"reg["<< u::rd << "]: " << std::hex << machine.registers[u::rd]
               << std::dec << std::endl;
 #endif
   }
@@ -57,6 +57,19 @@ struct SLT : format::r {
   }
 };
 
+struct SLTI: format::i{
+  static constexpr uint32_t opcode = 0b0010011;
+  static constexpr uint32_t func3 =  0b010;
+  void invoke(auto& machine){
+    machine.registers[i::rd] = ((int32_t)machine.registers[i::rs1] < (int32_t)i::get_immediate());
+#ifdef DEBUG
+    std::cout<<"reg["<< i::rd << "]: " << std::hex << machine.registers[i::rs1]
+              << " < " << i::get_immediate()
+              << std::dec << std::endl;
+#endif
+  }
+};
+
 struct SLTU : format::r {
   static constexpr uint32_t opcode = 0b0110'011;
   static constexpr uint32_t func3  = 0b011;
@@ -66,6 +79,18 @@ struct SLTU : format::r {
 #ifdef DEBUG
     std::cout<<"reg["<< r::rd << "]: " << std::hex << machine.registers[r::rs1]
               << " < " << machine.registers[r::rs2]
+              << std::dec << std::endl;
+#endif
+  }
+};
+struct SLTIU: format::i{
+  static constexpr uint32_t opcode = 0b0010011;
+  static constexpr uint32_t func3 =  0b011;
+  void invoke(auto& machine){
+    machine.registers[i::rd] = (machine.registers[i::rs1] < i::get_immediate());
+#ifdef DEBUG
+    std::cout<<"reg["<< i::rd << "]: " << std::hex << machine.registers[i::rs1]
+              << " < " << i::get_immediate()
               << std::dec << std::endl;
 #endif
   }
@@ -84,16 +109,52 @@ struct AND: format::r {
 #endif
   }
 };
+struct ANDI: format::i{
+  static constexpr uint32_t opcode = 0b0010011;
+  static constexpr uint32_t func3 =  0b111;
+  void invoke(auto& machine){
+    machine.registers[i::rd] = (machine.registers[i::rs1] & i::get_immediate());
+#ifdef DEBUG
+    std::cout<<"reg["<< i::rd << "]: " << std::hex << machine.registers[i::rs1]
+              << " & " << i::get_immediate()
+              << std::dec << std::endl;
+#endif
+  }
+};
+struct ADDI: format::i{
+  static constexpr uint32_t opcode = 0b0010011;
+  static constexpr uint32_t func3 =  0b000;
+  void invoke(auto& machine){
+    machine.registers[i::rd] = (machine.registers[i::rs1] + i::get_immediate());
+#ifdef DEBUG
+    std::cout<<"reg["<< i::rd << "]: " << std::hex << machine.registers[i::rs1]
+              << " + " << i::get_immediate()
+              << std::dec << std::endl;
+#endif
+  }
+};
 
 struct OR : format::r {
   static constexpr uint32_t opcode = 0b0110'011;
   static constexpr uint32_t func3  = 0b110;
   static constexpr uint32_t func7  = 0b0000'000;
   void invoke(auto& machine){
-    machine.registers[r::rd] = (machine.registers[r::rs1] < machine.registers[r::rs2]);
+    machine.registers[r::rd] = (machine.registers[r::rs1] | machine.registers[r::rs2]);
 #ifdef DEBUG
     std::cout<<"reg["<< r::rd << "]: " << std::hex << machine.registers[r::rs1]
               << " | " << machine.registers[r::rs2]
+              << std::dec << std::endl;
+#endif
+  }
+};
+struct ORI: format::i{
+  static constexpr uint32_t opcode = 0b0010011;
+  static constexpr uint32_t func3 =  0b110;
+  void invoke(auto& machine){
+    machine.registers[i::rd] = (machine.registers[i::rs1] < i::get_immediate());
+#ifdef DEBUG
+    std::cout<<"reg["<< i::rd << "]: " << std::hex << machine.registers[i::rs1]
+              << " | " << i::get_immediate()
               << std::dec << std::endl;
 #endif
   }
@@ -112,6 +173,19 @@ struct XOR : format::r {
 #endif
   }
 };
+struct XORI: format::i{
+  static constexpr uint32_t opcode = 0b0010011;
+  static constexpr uint32_t func3 =  0b100;
+  void invoke(auto& machine){
+    machine.registers[i::rd] = (machine.registers[i::rs1] ^ i::get_immediate());
+#ifdef DEBUG
+    std::cout<<"reg["<< i::rd << "]: " << std::hex << machine.registers[i::rs1]
+              << " ^ " << i::get_immediate()
+              << std::dec << std::endl;
+#endif
+  }
+};
+
 
 struct SLL : format::r {
   static constexpr uint32_t opcode = 0b0110'011;
@@ -123,6 +197,15 @@ struct SLL : format::r {
     std::cout<<"reg["<< r::rd << "]: " << std::hex << (machine.registers[r::rs1]& 0x1F)
               << " << " << machine.registers[r::rs2]
               << std::dec << std::endl;
+#endif
+  }
+};
+struct SLLI: format::i{
+  static constexpr uint32_t opcode = 0b0010011;
+  static constexpr uint32_t func3 =  0b001;
+  void invoke(auto& machine){
+    machine.registers[i::rd] = (machine.registers[i::rs1] << (i::get_immediate() & 0x1F));
+#ifdef DEBUG
 #endif
   }
 };
@@ -152,6 +235,23 @@ struct SRA : format::r {
 #endif
   }
 };
+
+struct SRLI_SRAI: format::i{
+  static constexpr uint32_t opcode = 0b0010011;
+  static constexpr uint32_t func3 =  0b101;
+  void invoke(auto& machine){
+    if((i::get_immediate()&0xFE0) == 0x000){
+      machine.registers[i::rd] = (machine.registers[i::rs1] >>(i::get_immediate() & 0x1F));
+    }else if((i::get_immediate()&0xFE0) == 0x400){
+      machine.registers[i::rd] = ((int32_t)machine.registers[i::rs1] >>(i::get_immediate() & 0x1F));
+    }else{
+      machine.illegal_instruction();
+    }
+#ifdef DEBUG
+#endif
+  }
+};
+
 struct SUB : format::r {
   static constexpr uint32_t opcode = 0b0110'011;
   static constexpr uint32_t func3  = 0b000;
@@ -161,19 +261,6 @@ struct SUB : format::r {
 #ifdef DEBUG
     std::cout<<"reg["<< r::rd << "]: " << std::hex << machine.registers[r::rs2]
               << " - " << machine.registers[r::rs2]
-              << std::dec << std::endl;
-#endif
-  }
-};
-
-struct ADDI: format::i{
-  static constexpr uint32_t opcode = 0b0010011;
-  static constexpr uint32_t func3 =  0b000;
-  void invoke(auto& machine){
-    machine.registers[i::rd] = (machine.registers[i::rs1] + i::get_immediate());
-#ifdef DEBUG
-    std::cout<<"reg["<< i::rd << "]: " << std::hex << machine.registers[i::rs1]
-              << " + " << i::get_immediate()
               << std::dec << std::endl;
 #endif
   }
@@ -202,6 +289,7 @@ struct JAL : format::j {
     machine.pc += get_immediate();
   }
 };
+
 struct JALR : format::i {
   static constexpr auto opcode = 0b1100111;
   static constexpr auto func3 = 0;
