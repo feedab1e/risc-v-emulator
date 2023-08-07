@@ -23,7 +23,7 @@ struct AUIPC: format::u {
 
     machine.registers[u::rd] = (machine.pc + u::get_immediate());
 #ifdef DEBUG
-    std::cout<<"reg["<< u::rd << "]: " << std::hex << machine.registers[u::rd]
+    std::cout<<"reg["<< r::rd << "]: " << std::hex << machine.registers[u::rd]
               << std::dec << std::endl;
 #endif
   }
@@ -36,7 +36,7 @@ struct ADD : format::r {
   void invoke(auto& machine){
     machine.registers[r::rd] = (machine.registers[r::rs1] + machine.registers[r::rs2]);
 #ifdef DEBUG
-    std::cout<<"reg["<< u::rd << "]: " << std::hex << machine.registers[r::rs1]
+    std::cout<<"reg["<< r::rd << "]: " << std::hex << machine.registers[r::rs1]
               << " + " << machine.registers[r::rs2]
               << std::dec << std::endl;
 #endif
@@ -50,7 +50,7 @@ struct SLT : format::r {
   void invoke(auto& machine){
     machine.registers[r::rd] = ((int32_t)machine.registers[r::rs1] < (int32_t)machine.registers[r::rs2]);
 #ifdef DEBUG
-    std::cout<<"reg["<< u::rd << "]: " << std::hex << machine.registers[r::rs1]
+    std::cout<<"reg["<< r::rd << "]: " << std::hex << machine.registers[r::rs1]
               << " < " << machine.registers[r::rs2]
               << std::dec << std::endl;
 #endif
@@ -64,7 +64,7 @@ struct SLTU : format::r {
   void invoke(auto& machine){
     machine.registers[r::rd] = (machine.registers[r::rs1] < machine.registers[r::rs2]);
 #ifdef DEBUG
-    std::cout<<"reg["<< u::rd << "]: " << std::hex << machine.registers[r::rs1]
+    std::cout<<"reg["<< r::rd << "]: " << std::hex << machine.registers[r::rs1]
               << " < " << machine.registers[r::rs2]
               << std::dec << std::endl;
 #endif
@@ -78,7 +78,7 @@ struct AND: format::r {
   void invoke(auto& machine){
     machine.registers[r::rd] = (machine.registers[r::rs1] & machine.registers[r::rs2]);
 #ifdef DEBUG
-    std::cout<<"reg["<< u::rd << "]: " << std::hex << machine.registers[r::rs1]
+    std::cout<<"reg["<< r::rd << "]: " << std::hex << machine.registers[r::rs1]
               << " & " << machine.registers[r::rs2]
               << std::dec << std::endl;
 #endif
@@ -92,7 +92,7 @@ struct OR : format::r {
   void invoke(auto& machine){
     machine.registers[r::rd] = (machine.registers[r::rs1] < machine.registers[r::rs2]);
 #ifdef DEBUG
-    std::cout<<"reg["<< u::rd << "]: " << std::hex << machine.registers[r::rs1]
+    std::cout<<"reg["<< r::rd << "]: " << std::hex << machine.registers[r::rs1]
               << " | " << machine.registers[r::rs2]
               << std::dec << std::endl;
 #endif
@@ -106,7 +106,7 @@ struct XOR : format::r {
   void invoke(auto& machine){
     machine.registers[r::rd] = (machine.registers[r::rs1] ^ machine.registers[r::rs2]);
 #ifdef DEBUG
-    std::cout<<"reg["<< u::rd << "]: " << std::hex << machine.registers[r::rs1]
+    std::cout<<"reg["<< r::rd << "]: " << std::hex << machine.registers[r::rs1]
               << " ^ " << machine.registers[r::rs2]
               << std::dec << std::endl;
 #endif
@@ -120,7 +120,7 @@ struct SLL : format::r {
   void invoke(auto& machine){
     machine.registers[r::rd] = (machine.registers[r::rs1] << (machine.registers[r::rs2] & 0x1F));
 #ifdef DEBUG
-    std::cout<<"reg["<< u::rd << "]: " << std::hex << (machine.registers[r::rs1]& 0x1F)
+    std::cout<<"reg["<< r::rd << "]: " << std::hex << (machine.registers[r::rs1]& 0x1F)
               << " << " << machine.registers[r::rs2]
               << std::dec << std::endl;
 #endif
@@ -133,7 +133,7 @@ struct SRL : format::r {
   void invoke(auto& machine){
     machine.registers[r::rd] = (machine.registers[r::rs1] >>(machine.registers[r::rs2] & 0x1F));
 #ifdef DEBUG
-    std::cout<<"reg["<< u::rd << "]: " << std::hex << (machine.registers[r::rs2] & 0x1F)
+    std::cout<<"reg["<< r::rd << "]: " << std::hex << (machine.registers[r::rs2] & 0x1F)
               << " >> " << machine.registers[r::rs2]
               << std::dec << std::endl;
 #endif
@@ -146,7 +146,7 @@ struct SRA : format::r {
   void invoke(auto& machine){
     machine.registers[r::rd] = ((int32_t)machine.registers[r::rs1] >>(machine.registers[r::rs2] & 0x1F));
 #ifdef DEBUG
-    std::cout<<"reg["<< u::rd << "]: " << std::hex << (machine.registers[r::rs2] & 0x1F)
+    std::cout<<"reg["<< r::rd << "]: " << std::hex << (machine.registers[r::rs2] & 0x1F)
               << " >> " << machine.registers[r::rs2]
               << std::dec << std::endl;
 #endif
@@ -159,12 +159,26 @@ struct SUB : format::r {
   void invoke(auto& machine){
     machine.registers[r::rd] = (machine.registers[r::rs1] - (machine.registers[r::rs2] & 0x1F));
 #ifdef DEBUG
-    std::cout<<"reg["<< u::rd << "]: " << std::hex << (machine.registers[r::rs2] & 0x1F)
+    std::cout<<"reg["<< r::rd << "]: " << std::hex << machine.registers[r::rs2]
               << " - " << machine.registers[r::rs2]
               << std::dec << std::endl;
 #endif
   }
 };
+
+struct ADDI: format::i{
+  static constexpr uint32_t opcode = 0b0010011;
+  static constexpr uint32_t func3 =  0b000;
+  void invoke(auto& machine){
+    machine.registers[i::rd] = (machine.registers[i::rs1] + i::get_immediate());
+#ifdef DEBUG
+    std::cout<<"reg["<< i::rd << "]: " << std::hex << machine.registers[i::rs1]
+              << " + " << i::get_immediate()
+              << std::dec << std::endl;
+#endif
+  }
+};
+
 struct csrrw: format::i{
   static constexpr uint32_t opcode = 58;
   static constexpr uint32_t func3 = 2;
