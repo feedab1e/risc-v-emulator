@@ -4,7 +4,7 @@ set(CMAKE_CXX_STANDARD 23)
 
 project(rv32i-ima)
 
-add_definitions(-DDEBUG)
+#add_definitions(-DDEBUG)
 
 file(COPY test DESTINATION ${CMAKE_BINARY_DIR})
 

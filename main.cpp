@@ -32,32 +32,64 @@ std::vector<unsigned int> readBinaryFile(std::string fileName)
   return buf;
 }
 
+void writeBinaryFile(std::string fileName, unsigned int arr[], size_t len)
+{
+  std::ofstream f (fileName.c_str(), std::ios::binary | std::ios::out);
+  f.write(reinterpret_cast<const char *>(arr), len);
+  //for (size_t i = 0; i < len; i++)
+  //  f << arr[i];
+}
 
-int main(int argc, char **argv) {
+
+uint32_t test( const std::filesystem::path path){
   using namespace rv32i;
   using namespace format;
   using namespace instructions;
+  using namespace std::string_literals;
   machine<
-    rv32i_default_formats,
-    instruction_set<LUI, AUIPC, ADDI, ADD, SLT, SLTIU, SLTU, ANDI, AND, ORI, OR, XORI, XOR, SLLI, SLL, SRLI_SRAI, SRL, SRA, SUB, JAL, JALR, BEQ, BNE, BGE, BLT, BGEU, BLTU, SLTI,
+      rv32i_default_formats,
+      instruction_set<LUI, AUIPC, ADDI, ADD, SLT, SLTIU, SLTU, ANDI, AND, ORI, OR, XORI, XOR, SLLI, SLL, SRLI_SRAI, SRL, SRA, SUB, JAL, JALR, BEQ, BNE, BGE, BLT, BGEU, BLTU, SLTI,
                       LB, LH, LW, LBU, LHU,
                       SB, SH, SW,
                       CSRRW, CSRRS, CSRRC,
                       CSRRWI, CSRRSI, CSRRCI,
-                      ECALL>
+                      ECALL, FENCE>
 
-  > m;
+      > m;
   //m.program = {0x8765'4000 | 0b0110111 | 6 << 7};
-  std::cout<<std::filesystem::current_path()<<std::endl;
-  m.program = readBinaryFile(std::filesystem::current_path()/"../test/bin/rv32ui-p-add.bin");
+
+  m.program = readBinaryFile(path);
   //TODO: test auipc
   //TODO: test add
   //TODO: test slt/sltu
   //TODO: test and/or/xor
   //TODO: test sll, srl, sra, sub
   //TODO: test addi/nop
-  for(int i = 0; i < 1024; i++){
-    m.step();
+  try {
+    for (int i = 0; i < 1024; i++) {
+      m.step();
+    }
+  }catch(std::runtime_error &error) {\
+    if(error.what()=="SUCCESS"s){
+      return 0;
+    } else{
+      return 1;
+    }
+  }
+}
+
+int main(int argc, char **argv) {
+  std::cout<<std::filesystem::current_path()<<std::endl;
+  auto path = std::filesystem::current_path()/"../test/bin/";
+  std::vector<uint32_t > test_results = {};
+  for (const auto & entry : std::filesystem::directory_iterator(path)){
+    uint32_t result = test(entry.path());
+    if(result == 0){
+      std::cout<<"SUCCESS: " << entry.path() <<std::endl;
+    } else{
+      std::cout<<"FAIL: " << entry.path() <<std::endl;
+    }
+    test_results.emplace_back(result);
   }
   return 0;
 }

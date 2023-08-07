@@ -27,7 +27,7 @@ struct AUIPC: format::u {
   static constexpr uint32_t opcode = 0b0010111;
   void invoke(auto &machine){
 
-    machine.registers[u::rd] = (machine.pc + u::get_immediate());
+    machine.registers[u::rd] = (machine.pc +u::get_immediate());
 #ifdef DEBUG
     std::cout<<"[AUIPC] " << reginfo(machine, u::rd) << std::endl;
 #endif
@@ -160,7 +160,7 @@ struct ORI: format::i{
   static constexpr uint32_t opcode = 0b0010011;
   static constexpr uint32_t func3 =  0b110;
   void invoke(auto& machine){
-    machine.registers[i::rd] = (machine.registers[i::rs1] < i::get_immediate());
+    machine.registers[i::rd] = (machine.registers[i::rs1] | i::get_immediate());
 #ifdef DEBUG
     std::cout << "[ORI] " << reginfo(machine, i::rd) << " = "
               << reginfo(machine, i::rs1) << " | "
@@ -198,7 +198,7 @@ struct XORI: format::i{
 
 struct SLL : format::r {
   static constexpr uint32_t opcode = 0b0110'011;
-  static constexpr uint32_t func3  = 0b100;
+  static constexpr uint32_t func3  = 0b001;
   static constexpr uint32_t func7  = 0b0000'000;
   void invoke(auto& machine){
     machine.registers[r::rd] = (machine.registers[r::rs1] << (machine.registers[r::rs2] & 0x1F));
@@ -252,15 +252,15 @@ struct SRLI_SRAI: format::i{
   static constexpr uint32_t opcode = 0b0010011;
   static constexpr uint32_t func3 =  0b101;
   void invoke(auto& machine){
-    if((i::get_immediate()&0xFE0) == 0x000){
-      machine.registers[i::rd] = (machine.registers[i::rs1] >>(i::get_immediate() & 0x1F));
+    if((i::imm&0xFE0) == 0x000){
+      machine.registers[i::rd] = (machine.registers[i::rs1] >> (i::imm & 0x1F));
 #ifdef DEBUG
       std::cout << "[SRLI] " << reginfo(machine, i::rd) << " = "
                 << reginfo(machine, i::rs1) << " << "
                 << i::get_immediate() << std::endl;
 #endif
-    }else if((i::get_immediate()&0xFE0) == 0x400){
-      machine.registers[i::rd] = ((int32_t)machine.registers[i::rs1] >>(i::get_immediate() & 0x1F));
+    }else if((i::imm&0xFE0) == 0x400){
+      machine.registers[i::rd] = ((int32_t)machine.registers[i::rs1] >>(i::imm & 0x1F));
 #ifdef DEBUG
       std::cout << "[SRAI] " << reginfo(machine, i::rd) << " = "
                 << reginfo(machine, i::rs1) << " << "
@@ -277,7 +277,7 @@ struct SUB : format::r {
   static constexpr uint32_t func3  = 0b000;
   static constexpr uint32_t func7  = 0b0100'000;
   void invoke(auto& machine){
-    machine.registers[r::rd] = (machine.registers[r::rs1] - (machine.registers[r::rs2] & 0x1F));
+    machine.registers[r::rd] = (machine.registers[r::rs1] - machine.registers[r::rs2]);
 #ifdef DEBUG
     std::cout << "[SUB] " << reginfo(machine, r::rd) << " = "
               << reginfo(machine, r::rs1) << " >> "
@@ -376,7 +376,7 @@ struct JAL : format::j {
   static constexpr auto opcode = 0b1101111;
   void invoke(auto& machine){
     machine.registers[rd] = machine.pc + 4;
-    machine.pc += get_immediate();
+    machine.pc += get_immediate() - 4;
 #ifdef DEBUG
     std::cout << "[JAL] " << reginfo(machine, j::rd)
               << "PC: " << std::hex << machine.pc << std::dec
@@ -390,7 +390,7 @@ struct JALR : format::i {
   static constexpr auto func3 = 0;
   void invoke(auto& machine){
     machine.registers[rd] = machine.pc + 4;
-    machine.pc = (machine.registers[rd] + get_immediate()) & (-1 << 1);
+    machine.pc = (machine.registers[rs1] + (get_immediate()) & (-1 << 1)) - 4;
 #ifdef DEBUG
     std::cout << "[JALR ]" << reginfo(machine, i::rd)
               << "PC: " << std::hex << machine.pc << std::dec
@@ -403,7 +403,7 @@ struct BEQ : format::b {
   static constexpr auto func3 = 0b000;
   void invoke(auto& machine){
     if(machine.registers[rs1] == machine.registers[rs2])
-      machine.pc += get_immediate();
+      machine.pc += get_immediate() - 4;
 #ifdef DEBUG
     std::cout << "[BEQ ]" << reginfo(machine, b::rs1)
               << " == " << reginfo(machine, b::rs2)
@@ -417,7 +417,7 @@ struct BNE : format::b {
   static constexpr auto func3 = 0b001;
   void invoke(auto& machine){
     if(machine.registers[rs1] != machine.registers[rs2])
-      machine.pc += get_immediate();
+      machine.pc += get_immediate() - 4;
 #ifdef DEBUG
     std::cout << "[BNE ]" << reginfo(machine, b::rs1)
               << " != " << reginfo(machine, b::rs2)
@@ -432,7 +432,7 @@ struct BLT : format::b {
   void invoke(auto& machine){
     using s = std::make_signed_t<typename decltype(machine.registers)::value_type>;
     if((s)machine.registers[rs1] < (s)machine.registers[rs2])
-      machine.pc += get_immediate();
+      machine.pc += get_immediate() - 4;
 #ifdef DEBUG
     std::cout << "[BLT ]" << reginfo(machine, b::rs1)
               << " != " << reginfo(machine, b::rs2)
@@ -447,7 +447,7 @@ struct BGE : format::b {
   void invoke(auto& machine){
     using s = std::make_signed_t<typename decltype(machine.registers)::value_type>;
     if((s)machine.registers[rs1] >= (s)machine.registers[rs2])
-      machine.pc += get_immediate();
+      machine.pc += get_immediate() - 4;
 #ifdef DEBUG
     std::cout << "[BGE ]" << reginfo(machine, b::rs1)
               << " != " << reginfo(machine, b::rs2)
@@ -461,7 +461,7 @@ struct BLTU : format::b {
   static constexpr auto func3 = 0b110;
   void invoke(auto& machine){
     if(machine.registers[rs1] < machine.registers[rs2])
-      machine.pc += get_immediate();
+      machine.pc += get_immediate() - 4;
 #ifdef DEBUG
     std::cout << "[BLTU ]" << reginfo(machine, b::rs1)
               << " != " << reginfo(machine, b::rs2)
@@ -475,7 +475,8 @@ struct BGEU : format::b {
   static constexpr auto func3 = 0b111;
   void invoke(auto& machine){
     if(machine.registers[rs1] >= machine.registers[rs2])
-      machine.pc += get_immediate();
+      machine.pc += get_immediate() - 4;
+
 #ifdef DEBUG
     std::cout << "[BGEU ]" << reginfo(machine, b::rs1)
               << " != " << reginfo(machine, b::rs2)
@@ -607,6 +608,25 @@ struct ECALL : format::i {
   void invoke(auto& machine){
 #ifdef DEBUG
     std::cout << "[ECALL] idk" << std::endl;
+#endif
+    if(i::imm!=0)
+      return;
+    if(machine.registers[3] == 1){
+      std::cerr << "SUCCESS" << std::endl;
+      throw std::runtime_error("SUCCESS");
+    } else{
+      std::cerr << "FAIL " << reginfo(machine, 3) << std::endl;
+      throw std::runtime_error("FAIL иди дебаж");
+    }
+
+  }
+};
+struct FENCE : format::i {
+  static constexpr auto opcode = 0b000'1111;
+  static constexpr auto func3 = 0b000;
+  void invoke(auto& machine){
+#ifdef DEBUG
+    std::cout << "[FENCE] idk" << std::endl;
 #endif
   }
 };
