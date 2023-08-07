@@ -198,16 +198,16 @@ struct csrrs: format::i {
 struct JAL : format::j {
   static constexpr auto opcode = 0b1101111;
   void invoke(auto& machine){
-    machine.registers[rd] = machine.ip + 4;
-    machine.ip += get_immediate();
+    machine.registers[rd] = machine.pc + 4;
+    machine.pc += get_immediate();
   }
 };
 struct JALR : format::i {
   static constexpr auto opcode = 0b1100111;
   static constexpr auto funct3 = 0;
   void invoke(auto& machine){
-    machine.registers[rd] = machine.ip + 4;
-    machine.ip = (machine.registers[rd] + get_immediate()) & (-1 << 1);
+    machine.registers[rd] = machine.pc + 4;
+    machine.pc = (machine.registers[rd] + get_immediate()) & (-1 << 1);
   }
 };
 struct BEQ : format::b {
@@ -215,7 +215,7 @@ struct BEQ : format::b {
   static constexpr auto funct3 = 0b000;
   void invoke(auto& machine){
     if(machine.registers[rs1] == machine.registers[rs2])
-      machine.ip += get_immediate();
+      machine.pc += get_immediate();
   }
 };
 struct BNE : format::b {
@@ -223,7 +223,7 @@ struct BNE : format::b {
   static constexpr auto funct3 = 0b001;
   void invoke(auto& machine){
     if(machine.registers[rs1] != machine.registers[rs2])
-      machine.ip += get_immediate();
+      machine.pc += get_immediate();
   }
 };
 struct BLT : format::b {
@@ -232,7 +232,7 @@ struct BLT : format::b {
   void invoke(auto& machine){
     using s = std::make_signed_t<decltype(machine.registers[0])>;
     if((s)machine.registers[rs1] < (s)machine.registers[rs2])
-      machine.ip += get_immediate();
+      machine.pc += get_immediate();
   }
 };
 struct BGE : format::b {
@@ -241,7 +241,7 @@ struct BGE : format::b {
   void invoke(auto& machine){
     using s = std::make_signed_t<decltype(machine.registers[0])>;
     if((s)machine.registers[rs1] >= (s)machine.registers[rs2])
-      machine.ip += get_immediate();
+      machine.pc += get_immediate();
   }
 };
 struct BLTU : format::b {
@@ -249,7 +249,7 @@ struct BLTU : format::b {
   static constexpr auto funct3 = 0b110;
   void invoke(auto& machine){
     if(machine.registers[rs1] < machine.registers[rs2])
-      machine.ip += get_immediate();
+      machine.pc += get_immediate();
   }
 };
 struct BGEU : format::b {
@@ -257,7 +257,7 @@ struct BGEU : format::b {
   static constexpr auto funct3 = 0b111;
   void invoke(auto& machine){
     if(machine.registers[rs1] >= machine.registers[rs2])
-      machine.ip += get_immediate();
+      machine.pc += get_immediate();
   }
 };
 
