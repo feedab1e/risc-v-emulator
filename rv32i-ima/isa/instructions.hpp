@@ -195,14 +195,14 @@ struct csrrs: format::i {
 };
 
 
-struct jal : format::j {
+struct JAL : format::j {
   static constexpr auto opcode = 0b1101111;
   void invoke(auto& machine){
     machine.registers[rd] = machine.ip + 4;
     machine.ip += get_immediate();
   }
 };
-struct jalr : format::i {
+struct JALR : format::i {
   static constexpr auto opcode = 0b1100111;
   static constexpr auto funct3 = 0;
   void invoke(auto& machine){
@@ -210,7 +210,7 @@ struct jalr : format::i {
     machine.ip = (machine.registers[rd] + get_immediate()) & (-1 << 1);
   }
 };
-struct beq : format::b {
+struct BEQ : format::b {
   static constexpr auto opcode = 0b1100011;
   static constexpr auto funct3 = 0b000;
   void invoke(auto& machine){
@@ -218,7 +218,7 @@ struct beq : format::b {
       machine.ip += get_immediate();
   }
 };
-struct bne : format::b {
+struct BNE : format::b {
   static constexpr auto opcode = 0b1100011;
   static constexpr auto funct3 = 0b001;
   void invoke(auto& machine){
@@ -226,7 +226,7 @@ struct bne : format::b {
       machine.ip += get_immediate();
   }
 };
-struct blt : format::b {
+struct BLT : format::b {
   static constexpr auto opcode = 0b1100011;
   static constexpr auto funct3 = 0b100;
   void invoke(auto& machine){
@@ -235,7 +235,7 @@ struct blt : format::b {
       machine.ip += get_immediate();
   }
 };
-struct bge : format::b {
+struct BGE : format::b {
   static constexpr auto opcode = 0b1100011;
   static constexpr auto funct3 = 0b101;
   void invoke(auto& machine){
@@ -244,7 +244,7 @@ struct bge : format::b {
       machine.ip += get_immediate();
   }
 };
-struct bltu : format::b {
+struct BLTU : format::b {
   static constexpr auto opcode = 0b1100011;
   static constexpr auto funct3 = 0b110;
   void invoke(auto& machine){
@@ -252,7 +252,7 @@ struct bltu : format::b {
       machine.ip += get_immediate();
   }
 };
-struct bgeu : format::b {
+struct BGEU : format::b {
   static constexpr auto opcode = 0b1100011;
   static constexpr auto funct3 = 0b111;
   void invoke(auto& machine){
