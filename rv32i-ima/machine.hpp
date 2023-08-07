@@ -89,6 +89,22 @@ struct machine<
   void illegal_instruction(){
     throw std::runtime_error("пашол нахуй");
   }
+  template<class T>
+  T load(uint32_t addr)const{
+    using memory_type = typename decltype(program)::value_type;
+    constexpr auto ratio = sizeof(memory_type) / sizeof(T);
+    return program[addr / sizeof(memory_type)] >> CHAR_BIT * sizeof(T) * (addr / sizeof(T) % ratio);
+  }
+  template<class T>
+  void store(uint32_t addr, T value){
+    using memory_type = typename decltype(program)::value_type;
+    constexpr auto ratio = sizeof(memory_type) / sizeof(T);
+    auto oldval = program[addr/sizeof(memory_type)];
+    memory_type towrite = value;
+    oldval |= towrite << CHAR_BIT * sizeof(T) * (addr/sizeof(T) % ratio);
+    oldval &= ~(~towrite << CHAR_BIT * sizeof(T) * (addr/sizeof(T) % ratio));
+    program[addr / sizeof(memory_type)] = oldval;
+  }
   void step(){
     detail::dispatch<
       instruction_formats<formats...>,

@@ -261,4 +261,69 @@ struct BGEU : format::b {
   }
 };
 
+struct LB : format::i {
+  static constexpr auto opcode = 0b000'0011;
+  static constexpr auto func3 = 0b000;
+  void invoke(auto& machine){
+    auto addr = machine.registers[rs1] + get_immediate();
+    machine.registers[rd] = (int32_t)machine.template load<int8_t>(addr);
+  }
+};
+struct LH : format::i {
+  static constexpr auto opcode = 0b000'0011;
+  static constexpr auto func3 = 0b001;
+  void invoke(auto& machine){
+    auto addr = machine.registers[rs1] + get_immediate();
+    machine.registers[rd] = (int32_t)machine.template load<int16_t>(addr);
+  }
+};
+struct LW : format::i {
+  static constexpr auto opcode = 0b000'0011;
+  static constexpr auto func3 = 0b010;
+  void invoke(auto& machine){
+    auto addr = machine.registers[rs1] + get_immediate();
+    machine.registers[rd] = (uint32_t)machine.template load<uint32_t>(addr);
+  }
+};
+struct LBU : format::i {
+  static constexpr auto opcode = 0b000'0011;
+  static constexpr auto func3 = 0b100;
+  void invoke(auto& machine){
+    auto addr = machine.registers[rs1] + get_immediate();
+    machine.registers[rd] = (uint32_t)machine.template load<uint8_t>(addr);
+  }
+};
+struct LHU : format::i {
+  static constexpr auto opcode = 0b000'0011;
+  static constexpr auto func3 = 0b101;
+  void invoke(auto& machine){
+    auto addr = machine.registers[rs1] + get_immediate();
+    machine.registers[rd] = (uint32_t)machine.template load<uint16_t>(addr);
+  }
+};
+struct SB : format::s {
+  static constexpr auto opcode = 0b010'0011;
+  static constexpr auto func3 = 0b000;
+  void invoke(auto& machine){
+    auto addr = machine.registers[rs1] + get_immediate();
+    machine.store(addr, (uint8_t)machine.registers[rs2]);
+  }
+};
+struct SH : format::s {
+  static constexpr auto opcode = 0b010'0011;
+  static constexpr auto func3 = 0b001;
+  void invoke(auto& machine){
+    auto addr = machine.registers[rs1] + get_immediate();
+    machine.store(addr, (uint16_t)machine.registers[rs2]);
+  }
+};
+struct SW : format::s {
+  static constexpr auto opcode = 0b010'0011;
+  static constexpr auto func3 = 0b010;
+  void invoke(auto& machine){
+    auto addr = machine.registers[rs1] + get_immediate();
+    machine.store(addr, (uint32_t)machine.registers[rs2]);
+  }
+};
+
 }

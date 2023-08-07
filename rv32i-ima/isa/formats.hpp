@@ -77,6 +77,15 @@ struct s {
         auto tmp = std::bit_cast<detail::bitfield<uint32_t>>(*this);
         return tmp[7, 11] | tmp[25, 30] << 5 | tmp.fillbit(31, 21);
     }
+    template<class I, class... Is>
+    void dispatch(auto& machine){
+      if((I::func3) == this->func3)
+        std::bit_cast<I>(*this).invoke(machine);
+      else if constexpr(sizeof...(Is))
+        dispatch<Is...>(machine);
+      else
+          machine.illegal_instruction();
+    }
 };
 struct u {
     uint32_t opcode: 7;       // [6 : 0]
