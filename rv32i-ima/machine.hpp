@@ -7,6 +7,7 @@
 #include <array>
 #include "types.hpp"
 
+
 namespace rv32i{
 namespace detail{
 
@@ -15,8 +16,8 @@ struct dispatch;
 
 constexpr auto fold_with(auto f, auto acc, auto val, auto... vals){
   return fold_with(f, f(acc, val), vals...);
-};
-constexpr auto fold_with(auto f, auto acc){
+}
+constexpr auto fold_with(auto, auto acc){
   return acc;
 }
 
@@ -84,9 +85,10 @@ struct machine<
   instruction_set<instrs...>
 >{
   std::vector<uint32_t> program;
-  std::array<int32_t, 32> registers;
+  std::array<int32_t, 32> registers = {};
   uint32_t pc = 0;
   void illegal_instruction(){
+    printf("error at instruction [pc:%d]: 0x%X\n", this->pc, this->program[pc]);
     throw std::runtime_error("пашол нахуй");
   }
   template<class T>
@@ -110,7 +112,8 @@ struct machine<
     detail::dispatch<
       instruction_formats<formats...>,
       instruction_set<instrs...>
-    >{}(program.at(pc), *this);
+    >{}(program.at(pc/4), *this);
+    pc+=4;
   }
 };
 

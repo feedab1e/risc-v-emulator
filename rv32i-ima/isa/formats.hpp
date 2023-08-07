@@ -32,7 +32,7 @@ struct r {
     uint32_t rs1: 5;
     uint32_t rs2: 5;
     uint32_t func7: 7;
-    uint32_t get_immediate(){
+    [[nodiscard]] uint32_t get_immediate() const{
         auto tmp = std::bit_cast<detail::bitfield<uint32_t>>(*this);
         return tmp[7, 11] | tmp[25, 30] << 5 | tmp.fillbit(31, 21);
     }
@@ -52,7 +52,7 @@ struct i {
     uint32_t func3: 3;          // [14:12]
     uint32_t rs1: 5;            // [19:15]
     uint32_t imm: 12;           // [31:20]
-    uint32_t get_immediate(){
+    [[nodiscard]] uint32_t get_immediate() const{
         auto tmp = std::bit_cast<detail::bitfield<uint32_t>>(*this);
         return tmp[20, 30] | tmp.fillbit(31, 21);
     }
@@ -73,7 +73,7 @@ struct s {
     uint32_t rs1: 5;            // [19:15]
     uint32_t rs2: 5;            // [24:20]
     uint32_t imm_7: 7;          // [31:25]
-    uint32_t get_immediate(){
+    [[nodiscard]] uint32_t get_immediate() const{
         auto tmp = std::bit_cast<detail::bitfield<uint32_t>>(*this);
         return tmp[7, 11] | tmp[25, 30] << 5 | tmp.fillbit(31, 21);
     }
@@ -86,21 +86,12 @@ struct s {
       else
           machine.illegal_instruction();
     }
-    template<class I, class... Is>
-    void dispatch(auto& machine){
-        if((I::func3) == this->func3)
-          std::bit_cast<I>(*this).invoke(machine);
-        else if constexpr(sizeof...(Is))
-          dispatch<Is...>(machine);
-        else
-          machine.illegal_instruction();
-    }
 };
 struct u {
     uint32_t opcode: 7;       // [6 : 0]
     uint32_t rd: 5;           // [11: 8]
     uint32_t imm: 20;         // [31:12]
-    uint32_t get_immediate(){
+    [[nodiscard]] uint32_t get_immediate() const{
         return 0 | imm << 12;
     }
     template <class I>
@@ -115,7 +106,7 @@ struct b{
     uint32_t rs1: 5;          // [19:15]
     uint32_t rs2: 5;          // [24:20]
     uint32_t imm_7: 7;        // [31:25]
-    uint32_t get_immediate(){
+    [[nodiscard]] uint32_t get_immediate() const{
         auto tmp = std::bit_cast<detail::bitfield<uint32_t>>(*this);
         return 0 | tmp[8, 11] << 1 | tmp[25, 30] << 5 | tmp[7] << 11 | tmp.fillbit(31, 20);
     }
@@ -133,7 +124,7 @@ struct j {
     uint32_t opcode: 7;      // [6 : 0]
     uint32_t rd: 5;          // [11: 8]
     uint32_t imm: 20;        // [31:12]
-    uint32_t get_immediate(){
+    [[nodiscard]] uint32_t get_immediate() const{
         auto tmp = std::bit_cast<detail::bitfield<uint32_t>>(*this);
         return 0 | tmp[21, 24] << 1 | tmp[25, 30] << 5 | tmp[20] << 11 | tmp[12, 19] << 12 | tmp.fillbit(31, 12);
     }

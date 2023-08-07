@@ -266,16 +266,44 @@ struct SUB : format::r {
   }
 };
 
-struct csrrw: format::i{
-  static constexpr uint32_t opcode = 58;
-  static constexpr uint32_t func3 = 2;
+struct CSRRW: format::i{
+  static constexpr uint32_t opcode = 0b111'0011;
+  static constexpr uint32_t func3 =  0b001;
   void invoke(auto&){
     std::cout << "csrrw\n";
   }
 };
-struct csrrs: format::i {
-  static constexpr uint32_t opcode = 0;
-  static constexpr uint32_t func3 = 0;
+struct CSRRS: format::i {
+  static constexpr uint32_t opcode = 0b111'0011;
+  static constexpr uint32_t func3 =  0b010;
+  void invoke(auto&){
+    std::cout << "csrrs\n" << this->imm << "\n";
+  }
+};
+struct CSRRC: format::i {
+  static constexpr uint32_t opcode = 0b111'0011;
+  static constexpr uint32_t func3 =  0b011;
+  void invoke(auto&){
+    std::cout << "csrrs\n" << this->imm << "\n";
+  }
+};
+struct CSRRWI: format::i {
+  static constexpr uint32_t opcode = 0b111'0011;
+  static constexpr uint32_t func3 =  0b101;
+  void invoke(auto&){
+    std::cout << "csrrs\n" << this->imm << "\n";
+  }
+};
+struct CSRRSI: format::i {
+  static constexpr uint32_t opcode = 0b111'0011;
+  static constexpr uint32_t func3 =  0b110;
+  void invoke(auto&){
+    std::cout << "csrrs\n" << this->imm << "\n";
+  }
+};
+struct CSRRCI: format::i {
+  static constexpr uint32_t opcode = 0b111'0011;
+  static constexpr uint32_t func3 =  0b111;
   void invoke(auto&){
     std::cout << "csrrs\n" << this->imm << "\n";
   }
@@ -287,6 +315,9 @@ struct JAL : format::j {
   void invoke(auto& machine){
     machine.registers[rd] = machine.pc + 4;
     machine.pc += get_immediate();
+#ifdef DEBUG
+    printf("[JAL] jump to addr: 0x%X", machine.pc);
+#endif
   }
 };
 
@@ -296,6 +327,9 @@ struct JALR : format::i {
   void invoke(auto& machine){
     machine.registers[rd] = machine.pc + 4;
     machine.pc = (machine.registers[rd] + get_immediate()) & (-1 << 1);
+#ifdef DEBUG
+    printf("[JALR] jump to addr: 0x%X\n", machine.pc);
+#endif
   }
 };
 struct BEQ : format::b {
