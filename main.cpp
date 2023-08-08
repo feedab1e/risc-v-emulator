@@ -1,8 +1,9 @@
 #include "rv32i-ima/isa/formats.hpp"
 #include "rv32i-ima/isa/instructions.hpp"
+#include "rv32i-ima/isa/instructions_m.hpp"
 #include "rv32i-ima/machine.hpp"
-#include <fstream>
 #include <filesystem>
+#include <fstream>
 
 std::vector<unsigned int> readBinaryFile(std::string fileName)
 {
@@ -47,7 +48,10 @@ uint32_t test( const std::filesystem::path path){
                       SB, SH, SW,
                       CSRRW, CSRRS, CSRRC,
                       CSRRWI, CSRRSI, CSRRCI,
-                      ECALL, FENCE, FENCE_I>
+                      ECALL, FENCE, FENCE_I,
+                      MUL, MULH, MULHSU, MULHU,
+                      DIV, DIVU,
+                      REM, REMU>
 
       > m;
   //m.program = {0x8765'4000 | 0b0110111 | 6 << 7};
