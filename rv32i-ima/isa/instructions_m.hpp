@@ -9,7 +9,7 @@
 
 namespace rv32i::instructions{
 struct MUL: format::r {
-  static constexpr uint32_t opcode = 0b011'0111;
+  static constexpr uint32_t opcode = 0b011'0011;
   static constexpr uint32_t func3 =  0b000;
   static constexpr uint32_t func7 =  0b000'0001;
   void invoke(auto &machine){
@@ -21,7 +21,7 @@ struct MUL: format::r {
 };
 
 struct MULH: format::r {
-  static constexpr uint32_t opcode = 0b011'0111;
+  static constexpr uint32_t opcode = 0b011'0011;
   static constexpr uint32_t func3 =  0b001;
   static constexpr uint32_t func7 =  0b000'0001;
   void invoke(auto &machine){
@@ -33,7 +33,7 @@ struct MULH: format::r {
 };
 
 struct MULHSU: format::r {
-  static constexpr uint32_t opcode = 0b011'0111;
+  static constexpr uint32_t opcode = 0b011'0011;
   static constexpr uint32_t func3 =  0b010;
   static constexpr uint32_t func7 =  0b000'0001;
   void invoke(auto &machine){
