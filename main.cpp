@@ -83,7 +83,7 @@ int main(int argc, char **argv) {
   for (const auto & entry : std::filesystem::directory_iterator(path)){
     uint32_t result = test(entry.path());
     if(result == 0){
-      std::cout<<"SUCCESS: " << entry.path() <<std::endl;
+      //std::cout<<"SUCCESS: " << entry.path() <<std::endl;
     } else{
       std::cerr<<"FAIL: " << entry.path() <<std::endl;
     }

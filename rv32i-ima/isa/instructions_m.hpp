@@ -13,9 +13,13 @@ struct MUL: format::r {
   static constexpr uint32_t func3 =  0b000;
   static constexpr uint32_t func7 =  0b000'0001;
   void invoke(auto &machine){
+    machine.registers[r::rd] = ((int32_t)machine.registers[r::rs1] * (int32_t)machine.registers[r::rs2]);
 
 #ifdef DEBUG
-    std::cout<<"[MUL] ";
+    std::cout<<"[MUL] "
+        << reginfo(machine, rd) << " = "
+        << reginfo(machine, rs1) << "* "
+        << reginfo(machine, rs1) << std::endl;
 #endif
   }
 };
@@ -25,9 +29,12 @@ struct MULH: format::r {
   static constexpr uint32_t func3 =  0b001;
   static constexpr uint32_t func7 =  0b000'0001;
   void invoke(auto &machine){
-
+    machine.registers[rd] = (((int64_t)(int32_t)machine.registers[r::rs1] * (int64_t)(int32_t)machine.registers[r::rs2]) >> 32);
 #ifdef DEBUG
-    std::cout<<"[MULH] ";
+    std::cout<<"[MULH] "
+              << reginfo(machine, rd) << " = "
+              << reginfo(machine, rs1) << " * "
+              << reginfo(machine, rs1);
 #endif
   }
 };
@@ -38,8 +45,12 @@ struct MULHSU: format::r {
   static constexpr uint32_t func7 =  0b000'0001;
   void invoke(auto &machine){
 
+    machine.registers[rd] = ((int64_t)(int32_t)machine.registers[r::rs1] * (uint64_t)machine.registers[r::rs2])>>32;
 #ifdef DEBUG
-    std::cout<<"[MULHSU] ";
+    std::cout<<"[MULH] "
+              << reginfo(machine, rd) << " = "
+              << reginfo(machine, rs1) << " * "
+              << reginfo(machine, rs1);
 #endif
   }
 };
@@ -50,8 +61,12 @@ struct MULHU: format::r {
   static constexpr uint32_t func7 =  0b000'0001;
   void invoke(auto &machine){
 
+    machine.registers[rd] = ((uint64_t)machine.registers[rs1] * (uint64_t )machine.registers[rs2])>>32;
 #ifdef DEBUG
-    std::cout<<"[MULHU] ";
+    std::cout<<"[MULH] "
+              << reginfo(machine, rd) << " = "
+              << reginfo(machine, rs1) << " * "
+              << reginfo(machine, rs1);
 #endif
   }
 };
