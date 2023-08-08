@@ -389,11 +389,12 @@ struct JALR : format::i {
   static constexpr auto opcode = 0b1100111;
   static constexpr auto func3 = 0;
   void invoke(auto& machine){
-    machine.registers[rd] = machine.pc + 4;
+    uint32_t tmp = machine.pc + 4;
     machine.pc = (machine.registers[rs1] + (get_immediate()) & (-1 << 1)) - 4;
+    machine.registers[rd] = tmp;
 #ifdef DEBUG
-    std::cout << "[JALR ]" << reginfo(machine, i::rd)
-              << "PC: " << std::hex << machine.pc << std::dec
+    std::cout << "[JALR ]" << reginfo(machine, i::rd) << reginfo(machine, rs1)
+              << "PC: " << std::hex << machine.pc + 4 << std::dec
               << std::endl;
 #endif
   }
@@ -612,7 +613,7 @@ struct ECALL : format::i {
     if(i::imm!=0)
       return;
     if(machine.registers[3] == 1){
-      std::cerr << "SUCCESS" << std::endl;
+      //std::cerr << "SUCCESS" << std::endl;
       throw std::runtime_error("SUCCESS");
     } else{
       std::cerr << "FAIL " << reginfo(machine, 3) << std::endl;
@@ -627,6 +628,15 @@ struct FENCE : format::i {
   void invoke(auto& machine){
 #ifdef DEBUG
     std::cout << "[FENCE] idk" << std::endl;
+#endif
+  }
+};
+struct FENCE_I : format::i {
+  static constexpr auto opcode = 0b000'1111;
+  static constexpr auto func3 = 0b001;
+  void invoke(auto& machine){
+#ifdef DEBUG
+    std::cout << "[FENCE_I] idk" << std::endl;
 #endif
   }
 };

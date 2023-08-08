@@ -3,7 +3,10 @@
 #include "types.hpp"
 #include <array>
 #include <cstdint>
+#include <cstring>
 #include <exception>
+#include <filesystem>
+#include <fstream>
 #include <iomanip>
 #include <type_traits>
 #include <vector>
@@ -79,6 +82,14 @@ struct dispatch<instruction_formats<formats...>, instruction_set<>>{
 template<class formats, class isa>
 struct machine;
 
+void writeBinaryFile(std::string fileName, unsigned int arr[], size_t len)
+{
+  std::ofstream f (fileName.c_str(), std::ios::binary | std::ios::out);
+  f.write(reinterpret_cast<const char *>(arr), len);
+  //for (size_t i = 0; i < len; i++)
+  //  f << arr[i];
+}
+
 template<class... formats, class... instrs>
 struct machine<
   instruction_formats<formats...>,
@@ -91,24 +102,22 @@ struct machine<
 
 
   void illegal_instruction(){
-    printf("error at instruction [pc:%d]: 0x%X\n", this->pc, this->program[pc]);
+    printf("error at instruction [pc:%d 0x%X]: 0x%X\n", this->pc, this->pc, this->program[pc]);
+    writeBinaryFile(std::filesystem::current_path()/"../test/memory.dump", this->program.data(), this->program.size()*4);
     throw std::runtime_error("пашол нахуй");
   }
   template<class T>
   T load(uint32_t addr)const{
-    using memory_type = typename decltype(program)::value_type;
-    constexpr auto ratio = sizeof(memory_type) / sizeof(T);
-    return program[addr / sizeof(memory_type)] >> CHAR_BIT * sizeof(T) * (addr / sizeof(T) % ratio);
+    //using memory_type = typename decltype(program)::value_type;
+    //constexpr auto ratio = sizeof(memory_type) / sizeof(T);
+    //return program[addr / sizeof(memory_type)] >> CHAR_BIT * sizeof(T) * (addr / sizeof(T) % ratio);
+    T tmp;
+    memcpy(&tmp, ((uint8_t*)program.data()) + addr, sizeof(T));
+    return tmp;
   }
   template<class T>
   void store(uint32_t addr, T value){
-    using memory_type = typename decltype(program)::value_type;
-    constexpr auto ratio = sizeof(memory_type) / sizeof(T);
-    auto oldval = program[addr/sizeof(memory_type)];
-    memory_type towrite = value;
-    oldval |= towrite << CHAR_BIT * sizeof(T) * (addr/sizeof(T) % ratio);
-    oldval &= ~(~towrite << CHAR_BIT * sizeof(T) * (addr/sizeof(T) % ratio));
-    program[addr / sizeof(memory_type)] = oldval;
+    memcpy(((uint8_t*)program.data()) + addr, &value, sizeof(T));
   }
   void step(){
 #ifdef DEBUG

@@ -32,13 +32,7 @@ std::vector<unsigned int> readBinaryFile(std::string fileName)
   return buf;
 }
 
-void writeBinaryFile(std::string fileName, unsigned int arr[], size_t len)
-{
-  std::ofstream f (fileName.c_str(), std::ios::binary | std::ios::out);
-  f.write(reinterpret_cast<const char *>(arr), len);
-  //for (size_t i = 0; i < len; i++)
-  //  f << arr[i];
-}
+
 
 
 uint32_t test( const std::filesystem::path path){
@@ -53,7 +47,7 @@ uint32_t test( const std::filesystem::path path){
                       SB, SH, SW,
                       CSRRW, CSRRS, CSRRC,
                       CSRRWI, CSRRSI, CSRRCI,
-                      ECALL, FENCE>
+                      ECALL, FENCE, FENCE_I>
 
       > m;
   //m.program = {0x8765'4000 | 0b0110111 | 6 << 7};
@@ -66,7 +60,7 @@ uint32_t test( const std::filesystem::path path){
   //TODO: test sll, srl, sra, sub
   //TODO: test addi/nop
   try {
-    for (int i = 0; i < 1024; i++) {
+    for (int i = 0; i < 1024*16; i++) {
       m.step();
     }
   }catch(std::runtime_error &error) {\
@@ -87,7 +81,7 @@ int main(int argc, char **argv) {
     if(result == 0){
       std::cout<<"SUCCESS: " << entry.path() <<std::endl;
     } else{
-      std::cout<<"FAIL: " << entry.path() <<std::endl;
+      std::cerr<<"FAIL: " << entry.path() <<std::endl;
     }
     test_results.emplace_back(result);
   }
