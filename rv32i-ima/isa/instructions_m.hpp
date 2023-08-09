@@ -68,7 +68,7 @@ INSTRUCTION( DIV, format::r, 0b011'0011, MEMBER(func3,  0b100), MEMBER(func7,   
 #endif
 };
 
-INSTRUCTION( DIVU, format::r, 0b011'0011, MEMBER(func3,  0b101), MEMBER(func7,   0b000'000)){
+INSTRUCTION( DIVU, format::r, 0b011'0011, MEMBER(func3,  0b101), MEMBER(func7,   0b000'0001)){
   
     if( m.registers[i.rs2] == 0 ){
      m.registers[i.rd]  = 0xffffffff;
@@ -79,7 +79,7 @@ INSTRUCTION( DIVU, format::r, 0b011'0011, MEMBER(func3,  0b101), MEMBER(func7,  
     std::cout<<"[DIVU] ";
 #endif
 };
-INSTRUCTION( REM, format::r, 0b011'0011, MEMBER(func3,  0b110), MEMBER(func7,  0b000'000)){
+INSTRUCTION( REM, format::r, 0b011'0011, MEMBER(func3,  0b110), MEMBER(func7,  0b000'0001)){
   
     if(m.registers[i.rs2] == 0){
      m.registers[i.rd] = m.registers[i.rs1];
@@ -90,7 +90,7 @@ INSTRUCTION( REM, format::r, 0b011'0011, MEMBER(func3,  0b110), MEMBER(func7,  0
     std::cout<<"[REM] ";
 #endif
 };
-INSTRUCTION( REMU, format::r, 0b011'0011, MEMBER(func3,  0b111), MEMBER(func7, 0b000'000)){
+INSTRUCTION( REMU, format::r, 0b011'0011, MEMBER(func3,  0b111), MEMBER(func7, 0b000'0001)){
   
     if( m.registers[i.rs2] == 0 ){
      m.registers[i.rd]  = m.registers[i.rs1];

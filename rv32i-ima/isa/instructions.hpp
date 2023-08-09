@@ -50,7 +50,7 @@ INSTRUCTION(AUIPC, format::u, 0b0010111) {
 #endif
 };
 
-INSTRUCTION(ADD, format::r, 0b0010111, MEMBER(func3, 0b000),
+INSTRUCTION(ADD, format::r, 0b0110011, MEMBER(func3, 0b000),
             MEMBER(func7, 0b0000'000)) {
   m.registers[i.rd] = (m.registers[i.rs1] + m.registers[i.rs2]);
 #ifdef DEBUG
@@ -91,7 +91,7 @@ INSTRUCTION(SLTI, format::i, 0b0010011, MEMBER(func3, 0b010)) {
 };
 
 INSTRUCTION(SLTU, format::r, 0b0110'011, MEMBER(func3, 0b011),
-            MEMBER(func3, 0b0000'000)) {
+            MEMBER(func7, 0b0000'000)) {
   static constexpr uint32_t func3 = 0b011;
   static constexpr uint32_t func7 = 0b0000'000;
 
@@ -112,7 +112,7 @@ INSTRUCTION(SLTIU, format::i, 0b0010011, MEMBER(func3, 0b011)) {
 };
 
 INSTRUCTION(AND, format::r, 0b0110'011, MEMBER(func3, 0b111),
-            MEMBER(func3,  0b0000'000)) {
+            MEMBER(func7,  0b0000'000)) {
   static constexpr uint32_t func3 = 0b111;
   static constexpr uint32_t func7 = 0b0000'000;
 
