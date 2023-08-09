@@ -132,7 +132,7 @@ INSTRUCTION(ANDI, format::i, 0b0010011, MEMBER(func3, 0b111)) {
 #endif
 };
 
-INSTRUCTION(OR, format::r, 0b0110'011, MEMBER(func3, 0b110)
+INSTRUCTION(OR, format::r, 0b0110'011, MEMBER(func3, 0b110),
                                            MEMBER(func7,  0b0000'000)) {
   static constexpr uint32_t func3 = 0b110;
   static constexpr uint32_t func7 = 0b0000'000;
@@ -153,7 +153,7 @@ INSTRUCTION(ORI, format::i, 0b0010011, MEMBER(func3, 0b110)) {
 #endif
 };
 
-INSTRUCTION(XOR, format::r, 0b0110'011, MEMBER(func3, 0b100)
+INSTRUCTION(XOR, format::r, 0b0110'011, MEMBER(func3, 0b100),
                                             MEMBER(func7, 0b0000'000)) {
   static constexpr uint32_t func3 = 0b100;
   static constexpr uint32_t func7 = 0b0000'000;
@@ -315,7 +315,7 @@ INSTRUCTION(CSRRCI, format::i, 0b111'0011, MEMBER(func3, 0b111)) {
 #endif
 };
 
-INSTRUCTION(JAL, format::j, 0b1101111, MEMBER(func3, 0b000)) {
+INSTRUCTION(JAL, format::j, 0b1101111) {
 
   m.registers[i.rd] = m.pc + 4;
   m.pc += i.get_immediate() - 4;
