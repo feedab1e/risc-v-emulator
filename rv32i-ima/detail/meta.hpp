@@ -171,9 +171,6 @@ tuple(Ts...)->tuple<std::make_index_sequence<sizeof...(Ts)>, Ts...>;
 template<class... Ts>
 tuple(tuple<Ts...>)->tuple<Ts...>;
 
-constexpr auto y = 1_v + 2_v;
-
-static_assert(y == 3_v);
 
 auto x = tuple(lift_type<int>{}, lift_type<float>{}) & tuple(lift_type<char>{});
 

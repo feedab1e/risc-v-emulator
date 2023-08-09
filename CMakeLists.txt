@@ -11,6 +11,6 @@ file(COPY test DESTINATION ${CMAKE_BINARY_DIR})
 
 add_executable(rv32i-ima main.cpp)
 target_compile_features(rv32i-ima PUBLIC cxx_std_23)
-target_compile_options(rv32i-ima PRIVATE -ftemplate-depth=20)
+#target_compile_options(rv32i-ima PRIVATE -ftemplate-depth=20)
 
 install(TARGETS rv32i-ima RUNTIME DESTINATION bin)
