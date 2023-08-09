@@ -9,6 +9,7 @@
 #include <iomanip>
 #include <type_traits>
 #include <vector>
+#include <bitset>
 
 #include "detail/meta.hpp"
 
@@ -39,7 +40,7 @@ struct dispatch{
         });
       constexpr auto types_with_no_max_opcode = instrs.select(
         [&](auto instr){
-          return detail::meta::lift_value<decltype(*instr)::opcode == max_id>{};
+          return detail::meta::lift_value<decltype(*instr)::opcode != max_id>{};
         });
       constexpr auto is_format = [](auto instr, auto format){
         return instr([&](auto...instr){
@@ -68,7 +69,8 @@ struct dispatch{
           }
         });
       }else{
-        machine.illegal_instruction();
+        dispatch<formats, types_with_no_max_opcode>{}(i, machine);
+        //machine.illegal_instruction();
       }
     }
   }
@@ -95,7 +97,8 @@ struct machine{
 
 
   void illegal_instruction(){
-    printf("error at instruction [pc:%d 0x%X]: 0x%X\n", this->pc, this->pc, this->program[pc]);
+    printf("error at instruction [pc:%d 0x%X]: 0x%X 0b", this->pc, this->pc, this->program[pc]);
+    std::cout<<std::bitset<32>(this->program[pc])<<std::endl;
     writeBinaryFile(std::filesystem::current_path()/"../test/memory.dump", this->program.data(), this->program.size()*4);
     throw std::runtime_error("пашол нахуй");
   }

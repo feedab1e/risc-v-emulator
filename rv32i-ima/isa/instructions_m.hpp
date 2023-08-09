@@ -8,129 +8,101 @@
 #include <iostream>
 
 namespace rv32i::instructions{
-struct MUL: format::r {
-  static constexpr uint32_t opcode = 0b011'0011;
-  static constexpr uint32_t func3 =  0b000;
-  static constexpr uint32_t func7 =  0b000'0001;
-  void invoke(auto &machine){
-    machine.registers[r::rd] = ((int32_t)machine.registers[r::rs1] * (int32_t)machine.registers[r::rs2]);
+INSTRUCTION( MUL, format::r, 0b011'0011, MEMBER(func3, 0b000), MEMBER(func7, 0b000'0001)){
+  
+    m.registers[i.rd] = ((int32_t)m.registers[i.rs1] * (int32_t)m.registers[i.rs2]);
 
 #ifdef DEBUG
     std::cout<<"[MUL] "
-        << reginfo(machine, rd) << " = "
-        << reginfo(machine, rs1) << "* "
-        << reginfo(machine, rs1) << std::endl;
+        << reginfo(m, i.rd) << " = "
+        << reginfo(m, i.rs1) << "* "
+        << reginfo(m, i.rs1) << std::endl;
 #endif
-  }
 };
 
-struct MULH: format::r {
-  static constexpr uint32_t opcode = 0b011'0011;
-  static constexpr uint32_t func3 =  0b001;
-  static constexpr uint32_t func7 =  0b000'0001;
-  void invoke(auto &machine){
-    machine.registers[rd] = (((int64_t)(int32_t)machine.registers[r::rs1] * (int64_t)(int32_t)machine.registers[r::rs2]) >> 32);
+INSTRUCTION( MULH, format::r, 0b011'0011, MEMBER(func3,  0b001), MEMBER(func7,   0b000'0001)){
+  
+    m.registers[i.rd] = (((int64_t)(int32_t)m.registers[i.rs1] * (int64_t)(int32_t)m.registers[i.rs2]) >> 32);
 #ifdef DEBUG
     std::cout<<"[MULH] "
-              << reginfo(machine, rd) << " = "
-              << reginfo(machine, rs1) << " * "
-              << reginfo(machine, rs1);
+              << reginfo(m, i.rd) << " = "
+              << reginfo(m, i.rs1) << " * "
+              << reginfo(m, i.rs1);
 #endif
-  }
 };
 
-struct MULHSU: format::r {
-  static constexpr uint32_t opcode = 0b011'0011;
-  static constexpr uint32_t func3 =  0b010;
-  static constexpr uint32_t func7 =  0b000'0001;
-  void invoke(auto &machine){
+INSTRUCTION( MULHSU, format::r, 0b011'0011, MEMBER(func3,  0b010), MEMBER(func7,   0b000'0001)){
+  
 
-    machine.registers[rd] = ((int64_t)(int32_t)machine.registers[r::rs1] * (uint64_t)machine.registers[r::rs2])>>32;
+    m.registers[i.rd] = ((int64_t)(int32_t)m.registers[i.rs1] * (uint64_t)m.registers[i.rs2])>>32;
 #ifdef DEBUG
     std::cout<<"[MULH] "
-              << reginfo(machine, rd) << " = "
-              << reginfo(machine, rs1) << " * "
-              << reginfo(machine, rs1);
+              << reginfo(m, i.rd) << " = "
+              << reginfo(m, i.rs1) << " * "
+              << reginfo(m, i.rs1);
 #endif
-  }
 };
 
-struct MULHU: format::r {
-  static constexpr uint32_t opcode = 0b011'0011;
-  static constexpr uint32_t func3 =  0b011;
-  static constexpr uint32_t func7 =  0b000'0001;
-  void invoke(auto &machine){
+INSTRUCTION( MULHU, format::r, 0b011'0011, MEMBER(func3,  0b011), MEMBER(func7,   0b000'0001)){
+  
 
-    machine.registers[rd] = ((uint64_t)machine.registers[rs1] * (uint64_t )machine.registers[rs2])>>32;
+    m.registers[i.rd] = ((uint64_t)m.registers[i.rs1] * (uint64_t )m.registers[i.rs2])>>32;
 #ifdef DEBUG
     std::cout<<"[MULH] "
-              << reginfo(machine, rd) << " = "
-              << reginfo(machine, rs1) << " * "
-              << reginfo(machine, rs1);
+              << reginfo(m, i.rd) << " = "
+              << reginfo(m, i.rs1) << " * "
+              << reginfo(m, i.rs1);
 #endif
-  }
 };
 
-struct DIV: format::r {
-  static constexpr uint32_t opcode = 0b011'0011;
-  static constexpr uint32_t func3 =  0b100;
-  static constexpr uint32_t func7 =  0b000'0001;
-  void invoke(auto &machine){
+INSTRUCTION( DIV, format::r, 0b011'0011, MEMBER(func3,  0b100), MEMBER(func7,   0b000'0001)){
+  
 
-    if(machine.registers[rs2] == 0){
-      machine.registers[rd] = -1;
+    if(m.registers[i.rs2] == 0){
+      m.registers[i.rd] = -1;
     } else{
-     machine.registers[rd] = ((int32_t)machine.registers[rs1] == INT32_MIN && (int32_t)machine.registers[rs2] == -1) ? machine.registers[rs1] : ((int32_t)machine.registers[rs1] / (int32_t)machine.registers[rs2]);
+     m.registers[i.rd] = ((int32_t)m.registers[i.rs1] == INT32_MIN && (int32_t)m.registers[i.rs2] == -1) ? m.registers[i.rs1] : ((int32_t)m.registers[i.rs1] / (int32_t)m.registers[i.rs2]);
     }
 #ifdef DEBUG
     std::cout<<"[DIV] ";
 #endif
-  }
 };
 
-struct DIVU: format::r {
-  static constexpr uint32_t opcode = 0b011'0011;
-  static constexpr uint32_t func3 =  0b101;
-  static constexpr uint32_t func7 =  0b000'0001;
-  void invoke(auto &machine){
-    if( machine.registers[rs2] == 0 ){
-     machine.registers[rd]  = 0xffffffff;
+INSTRUCTION( DIVU, format::r, 0b011'0011, MEMBER(func3,  0b101), MEMBER(func7,   0b000'000)){
+  
+    if( m.registers[i.rs2] == 0 ){
+     m.registers[i.rd]  = 0xffffffff;
     }  else{
-     machine.registers[rd] = machine.registers[rs1] / machine.registers[rs2];
+     m.registers[i.rd] = m.registers[i.rs1] / m.registers[i.rs2];
     }
 #ifdef DEBUG
     std::cout<<"[DIVU] ";
 #endif
-  }
 };
-struct REM: format::r {
-  static constexpr uint32_t opcode = 0b011'0011;
-  static constexpr uint32_t func3 =  0b110;
-  static constexpr uint32_t func7 =  0b000'0001;
-  void invoke(auto &machine){
-    if(machine.registers[rs2] == 0){
-     machine.registers[rd] = machine.registers[rs1];
+INSTRUCTION( REM, format::r, 0b011'0011, MEMBER(func3,  0b110), MEMBER(func7,  0b000'000)){
+  
+    if(m.registers[i.rs2] == 0){
+     m.registers[i.rd] = m.registers[i.rs1];
     } else{
-     machine.registers[rd] = ((int32_t)machine.registers[rs1] == INT32_MIN && (int32_t)machine.registers[rs2] == -1) ? 0 : ((int32_t)machine.registers[rs1] % (int32_t)machine.registers[rs2]);
+     m.registers[i.rd] = ((int32_t)m.registers[i.rs1] == INT32_MIN && (int32_t)m.registers[i.rs2] == -1) ? 0 : ((int32_t)m.registers[i.rs1] % (int32_t)m.registers[i.rs2]);
     }
 #ifdef DEBUG
     std::cout<<"[REM] ";
 #endif
-  }
 };
-struct REMU: format::r {
-  static constexpr uint32_t opcode = 0b011'0011;
-  static constexpr uint32_t func3 =  0b111;
-  static constexpr uint32_t func7 =  0b000'0001;
-  void invoke(auto &machine){
-    if( machine.registers[rs2] == 0 ){
-     machine.registers[rd]  = machine.registers[rs1];
+INSTRUCTION( REMU, format::r, 0b011'0011, MEMBER(func3,  0b111), MEMBER(func7, 0b000'000)){
+  
+    if( m.registers[i.rs2] == 0 ){
+     m.registers[i.rd]  = m.registers[i.rs1];
     }  else{
-     machine.registers[rd] =  machine.registers[rs1] % machine.registers[rs2];
+     m.registers[i.rd] =  m.registers[i.rs1] % m.registers[i.rs2];
     }
 #ifdef DEBUG
     std::cout<<"[REMU] ";
 #endif
-  }
 };
+auto rv32i_isa_m = ::rv32i::detail::meta::tuple(MUL, MULH, MULHU, MULHSU, DIV, DIVU, REM, REMU);
+//#pragma pop_macro("INSTRUCTION")
+//#pragma pop_macro("MEMBER")
+
 }

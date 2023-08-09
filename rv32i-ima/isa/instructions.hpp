@@ -326,7 +326,6 @@ INSTRUCTION(JAL, format::j, 0b1101111) {
 };
 
 INSTRUCTION(JALR, format::i, 0b1100111, MEMBER(func3, 0b000)) {
-  static constexpr auto func3 = 0;
 
   uint32_t tmp = m.pc + 4;
   m.pc = (m.registers[i.rs1] + (i.get_immediate()) & (-1 << 1)) - 4;
@@ -507,6 +506,7 @@ INSTRUCTION(FENCE, format::i, 0b000'1111, MEMBER(func3, 0b000)) {
   std::cout << "[FENCE] idk" << std::endl;
 #endif
 };
+
 INSTRUCTION(FENCE_I, format::i, 0b000'1111, MEMBER(func3, 0b001)) {
   static constexpr auto func3 = 0b001;
 
@@ -514,8 +514,6 @@ INSTRUCTION(FENCE_I, format::i, 0b000'1111, MEMBER(func3, 0b001)) {
   std::cout << "[FENCE_I] idk" << std::endl;
 #endif
 };
-#pragma pop_macro("INSTRUCTION")
-#pragma pop_macro("MEMBER")
 
 auto rv32i_isa = ::rv32i::detail::meta::tuple(LUI, AUIPC,
                                               ADDI, ADD, SLT, SLTIU, SLTU, ANDI, AND, ORI, OR, XORI, XOR, SLLI, SLL, SRLI_SRAI, SRL, SRA, SUB, JAL, JALR, BEQ, BNE, BGE, BLT, BGEU, BLTU, SLTI,
@@ -523,6 +521,6 @@ auto rv32i_isa = ::rv32i::detail::meta::tuple(LUI, AUIPC,
                                               SB, SH, SW,
                                               CSRRW, CSRRS, CSRRC,
                                               CSRRWI, CSRRSI, CSRRCI,
-                                              ECALL, FENCE, FENCE_I);
-
+                                              ECALL, FENCE, FENCE_I
+);
 }

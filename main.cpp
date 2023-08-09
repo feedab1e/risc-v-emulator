@@ -41,19 +41,11 @@ uint32_t test( const std::filesystem::path path){
   using namespace format;
   using namespace instructions;
   using namespace std::string_literals;
+
+
   machine<
       rv32i_default_formats,
-      rv32i_isa
-      //, ADDI, ADD, SLT, SLTIU, SLTU, ANDI, AND, ORI, OR, XORI, XOR, SLLI, SLL, SRLI_SRAI, SRL, SRA, SUB, JAL, JALR, BEQ, BNE, BGE, BLT, BGEU, BLTU, SLTI,
-      //                LB, LH, LW, LBU, LHU,
-      //                SB, SH, SW,
-      //                CSRRW, CSRRS, CSRRC,
-      //                CSRRWI, CSRRSI, CSRRCI,
-      //                ECALL, FENCE, FENCE_I,
-      //                MUL, MULH, MULHSU, MULHU,
-      //                DIV, DIVU,
-      //                REM, REMU)>
-      > m;
+      rv32i_isa + rv32i_isa_m> m;
   //m.program = {0x8765'4000 | 0b0110111 | 6 << 7};
 
   m.program = readBinaryFile(path);
