@@ -3,7 +3,7 @@
 #include <climits>
 #include <cstdint>
 #include <bit>
-#include "../types.hpp"
+#include "../detail/meta.hpp"
 
 namespace rv32i{
 namespace detail{
@@ -134,7 +134,13 @@ struct j {
     }
 };
 
-using rv32i_default_formats = instruction_formats<i, j, b, r, s, u>;
+auto rv32i_default_formats = ::rv32i::detail::meta::tuple(
+  ::rv32i::detail::meta::lift_type<i>{},
+  ::rv32i::detail::meta::lift_type<j>{},
+  ::rv32i::detail::meta::lift_type<b>{},
+  ::rv32i::detail::meta::lift_type<r>{},
+  ::rv32i::detail::meta::lift_type<s>{},
+  ::rv32i::detail::meta::lift_type<u>{});
 
 }
 static_assert(sizeof(format::r) == 4);

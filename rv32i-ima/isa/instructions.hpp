@@ -3,8 +3,39 @@
 #include "formats.hpp"
 #include <iostream>
 #include <sstream>
+#include "../detail/meta.hpp"
 
 namespace rv32i::instructions{
+
+namespace detail{
+
+template<class Format, auto code, auto... ls>
+struct make_instruction{
+  template<class body>
+  struct insn:Format{
+    static constexpr auto opcode = code;
+    bool dispatch(){
+      return (ls(*(Format*)this) && ... && true);
+    }
+    void invoke(auto&& machine){
+      body{}(*(Format*)this, machine);
+    }
+  };
+  constexpr auto operator|(auto fn){
+    return ::rv32i::detail::meta::lift_type<insn<decltype(fn)>>{};
+  }
+};
+template<auto F, size_t x>
+constexpr auto make_member_cmp(){
+    return [](auto&& i){ return F(i) == x;};
+}
+
+}
+
+#pragma push_macro("MEMBER")
+#pragma push_macro("INSTRUCTION")
+#define MEMBER(IDEXPR, value) detail::make_member_cmp<[](auto&& i){return ((decltype(i))i).IDEXPR; }, value>()
+#define INSTRUCTION(name, ...) constexpr auto name = detail::make_instruction<__VA_ARGS__>{}|[](auto&& i, auto&& m)
 
 constexpr std::string reginfo (auto& machine, uint32_t reg){
   std::stringstream ss;
@@ -12,26 +43,18 @@ constexpr std::string reginfo (auto& machine, uint32_t reg){
   return ss.str();
 }
 
-struct LUI: format::u {
-  static constexpr uint32_t opcode = 0b0110111;
-  void invoke(auto &machine){
-    //machine
-    machine.registers[u::rd] = u::get_immediate();
-
+INSTRUCTION(LUI, format::u, 0b011'0111){
+    m.registers[i.rd] = i.get_immediate();
 #ifdef DEBUG
-    std::cout<<"[LUI] " << reginfo(machine, u::rd) << std::endl;
+    std::cout<<"[LUI] " << reginfo(m, i.rd) << std::endl;
 #endif
-  }
 };
-struct AUIPC: format::u {
-  static constexpr uint32_t opcode = 0b0010111;
-  void invoke(auto &machine){
 
-    machine.registers[u::rd] = (machine.pc +u::get_immediate());
+INSTRUCTION(AUIPC, format::u, 0b0010111){
+    m.registers[i.rd] = (m.pc + i.get_immediate());
 #ifdef DEBUG
     std::cout<<"[AUIPC] " << reginfo(machine, u::rd) << std::endl;
 #endif
-  }
 };
 
 struct ADD : format::r {
@@ -640,5 +663,9 @@ struct FENCE_I : format::i {
 #endif
   }
 };
+#pragma pop_macro("INSTRUCTION")
+#pragma pop_macro("MEMBER")
+
+auto rv32i_isa = ::rv32i::detail::meta::tuple(LUI, AUIPC);
 
 }

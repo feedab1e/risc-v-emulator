@@ -1,6 +1,5 @@
 #pragma once
 
-#include "types.hpp"
 #include <array>
 #include <cstdint>
 #include <cstring>
@@ -11,11 +10,10 @@
 #include <type_traits>
 #include <vector>
 
+#include "detail/meta.hpp"
+
 namespace rv32i{
 namespace detail{
-
-template<class formats, class isa>
-struct dispatch;
 
 constexpr auto fold_with(auto f, auto acc, auto val, auto... vals){
   return fold_with(f, f(acc, val), vals...);
@@ -24,63 +22,58 @@ constexpr auto fold_with(auto, auto acc){
   return acc;
 }
 
-template<class T>
-struct type_v{
-  using type = T;
-  T operator*()const noexcept;
-};
-
-template<class... formats, class... instrs>
-struct dispatch<
-  instruction_formats<formats...>,
-  instruction_set<instrs...>
->{
+template<auto formats, auto instrs>
+struct dispatch{
   void operator()(uint32_t i, auto& machine){
-    constexpr auto max_id = fold_with([](auto a, auto b){return a > b ? a : b; }, instrs::opcode...);
-    constexpr auto types_with_max_opcode = fold_with(
-      []<class... Ts, class U>(instruction_set<Ts...>, type_v<U>){
-        if constexpr(U::opcode == max_id)
-          return instruction_set<Ts..., U>{};
-        else return instruction_set<Ts...>{};
-      },
-      instruction_set<>{},
-      type_v<instrs>{}...);
-    constexpr auto types_with_no_max_opcode = fold_with(
-      []<class... Ts, class U>(instruction_set<Ts...>, type_v<U>){
-        if constexpr(U::opcode != max_id)
-          return instruction_set<Ts..., U>{};
-        else return instruction_set<Ts...>{};
-      },
-      instruction_set<>{},
-      type_v<instrs>{}...);
-    constexpr auto is_format = []<class... instr>(instruction_set<instr...>, auto format){
-      return (std::is_base_of_v<decltype(*format), instr> | ... | false);
-    };
-    constexpr auto max_id_format = fold_with([&](auto prev, auto fmt){
-      if constexpr (is_format(types_with_max_opcode, fmt))
-        return fmt;
-      else return prev;
-    }, nullptr, type_v<formats>{}...);
-
-    if((i & 0b111'1111) == max_id){
-      auto instr = std::bit_cast<decltype(*max_id_format)>(i);
-      [&]<class... Is>(instruction_set<Is...>){
-        instr.template dispatch<Is...>(machine);
-      }(types_with_max_opcode);
+    if constexpr (instrs.size() == 0){
+      machine.illegal_instruction();
     }else{
-      dispatch<instruction_formats<formats...>, std::remove_cv_t<decltype(types_with_no_max_opcode)>>{}(i, machine);
+      constexpr auto max_id = instrs([](auto... instr){
+        return fold_with([](auto a, auto b){
+          return a > b ? a : b;
+        }, decltype(*instr)::opcode...);
+      });
+      constexpr auto types_with_max_opcode = instrs.select(
+        [&](auto instr){
+          return detail::meta::lift_value<decltype(*instr)::opcode == max_id>{};
+        });
+      constexpr auto types_with_no_max_opcode = instrs.select(
+        [&](auto instr){
+          return detail::meta::lift_value<decltype(*instr)::opcode == max_id>{};
+        });
+      constexpr auto is_format = [](auto instr, auto format){
+        return instr([&](auto...instr){
+          return (std::is_base_of_v<decltype(*format), decltype(*instr)> && ... && true);
+        });
+      };
+      constexpr auto max_id_format = formats(
+        [&](auto... fmts){
+          return fold_with([&](auto prev, auto fmt){
+            if constexpr (is_format(types_with_max_opcode, fmt))
+              return fmt;
+            else return prev;
+          },
+          nullptr, fmts...);
+        });
+
+      if((i & 0b111'1111) == max_id){
+        types_with_max_opcode(meta::fix|[&](auto self, auto insn, auto... insns){
+          auto ins = std::bit_cast<decltype(*insn)>(i);
+          if constexpr(sizeof...(insns) == 0){
+            if(ins.dispatch()) ins.invoke(machine);
+            else machine.illegal_instruction();
+          } else {
+            if(ins.dispatch()) ins.invoke(machine);
+            else self(insns...);
+          }
+        });
+      }else{
+        machine.illegal_instruction();
+      }
     }
   }
 };
-template<class... formats>
-struct dispatch<instruction_formats<formats...>, instruction_set<>>{
-  auto operator()(uint32_t, auto& machine){
-    machine.illegal_instruction();
-  }
-};
 }
-template<class formats, class isa>
-struct machine;
 
 void writeBinaryFile(std::string fileName, unsigned int arr[], size_t len)
 {
@@ -90,11 +83,11 @@ void writeBinaryFile(std::string fileName, unsigned int arr[], size_t len)
   //  f << arr[i];
 }
 
-template<class... formats, class... instrs>
-struct machine<
-  instruction_formats<formats...>,
-  instruction_set<instrs...>
->{
+template<
+  auto formats,
+  auto instrs
+>
+struct machine{
   std::vector<uint32_t> program;
   std::array<uint32_t, 32> registers = {};
   std::array<uint32_t, 4096> csr = {0};
@@ -124,10 +117,7 @@ struct machine<
     std::cout<< *this;
 #endif
     this->registers[0] = 0;
-    detail::dispatch<
-      instruction_formats<formats...>,
-      instruction_set<instrs...>
-    >{}(program.at(pc/4), *this);
+    detail::dispatch<formats, instrs>{}(program.at(pc/4), *this);
     pc+=4;
   }
 
