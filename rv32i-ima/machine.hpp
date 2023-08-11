@@ -94,6 +94,10 @@ struct machine{
   std::array<uint32_t, 32> registers = {};
   std::array<uint32_t, 4096> csr = {0};
   uint32_t pc = 0;
+  struct trap{
+    uint32_t: 31 code;
+    uint32_t: 1 interupt;
+  };
 
 
   void illegal_instruction(){
